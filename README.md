@@ -1,3 +1,5 @@
+# Color-Ticket-Bot
+
 # 炫彩票務小幫手 (CHubb-Man)
 
 專為華語圈 Discord 伺服器打造的專業級管理、票務客服與網頁儀表板一體化解決方案。
