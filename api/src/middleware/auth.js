@@ -11,11 +11,30 @@ export function requireAuth(req, res, next) {
 /** Discord API 呼叫（OAuth2 Bearer token） */
 export async function discordFetch(path, accessToken) {
   const base = DISCORD_API || 'https://discord.com/api/v10';
-  const res = await fetch(`${base}${path}`, {
+  const url = `${base}${path}`;
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!res.ok) throw new Error(`Discord API ${path} → ${res.status}`);
-  return res.json();
+
+  const text = await res.text().catch(() => '');
+  if (!res.ok) {
+    // 詳細日誌有助於判斷是 rate-limit / auth / service outage
+    try {
+      console.error('[discordFetch] error', { path, url, status: res.status, body: text, headers: Object.fromEntries(res.headers) });
+    } catch (e) {
+      console.error('[discordFetch] error (logging failed)', e);
+    }
+    const err = new Error(`Discord API ${path} → ${res.status}`);
+    err.status = res.status;
+    err.body = text;
+    throw err;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 /** 檢查使用者是否具備該伺服器管理員權限（0x8 = ADMINISTRATOR） */
