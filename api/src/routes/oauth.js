@@ -25,7 +25,15 @@ oauthRouter.get('/login', (req, res) => {
 /** OAuth2 callback：換 token → 取使用者 → 寫入 session */
 oauthRouter.get('/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) return res.status(400).send('缺少授權碼');
+  const discordError = req.query.error;
+
+  // Discord 拒絕/取消授權時會帶 error 參數回來
+  if (discordError) {
+    const detail = req.query.error_description ? `（${req.query.error_description}）` : '';
+    return res.status(400).send(`Discord 授權被拒絕：${discordError} ${detail}`);
+  }
+
+  if (!code) return res.status(400).send('缺少授權碼：請回到首頁點「使用 Discord 登入」完成授權流程');
 
   try {
     const tokenRes = await fetch(`${DISCORD_API}/oauth2/token`, {
