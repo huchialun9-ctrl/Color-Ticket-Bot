@@ -1,4 +1,4 @@
-import { config } from '../config.js';
+import { config, DISCORD_API } from '../config.js';
 
 /** 登入身分中間層：要求 session 內含 discord user */
 export function requireAuth(req, res, next) {
@@ -10,7 +10,8 @@ export function requireAuth(req, res, next) {
 
 /** Discord API 呼叫（OAuth2 Bearer token） */
 export async function discordFetch(path, accessToken) {
-  const res = await fetch(`${config.DISCORD_API}${path}`, {
+  const base = DISCORD_API || 'https://discord.com/api/v10';
+  const res = await fetch(`${base}${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) throw new Error(`Discord API ${path} → ${res.status}`);
