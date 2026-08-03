@@ -16,6 +16,9 @@ import { internalRouter } from './routes/internal.js';
 
 const app = express();
 
+// Render/VPS 後方代理：信任第一層 proxy，使 req.protocol / X-Forwarded-Proto 正確
+app.set('trust proxy', 1);
+
 app.use(
   cors({
     origin: config.webBaseUrl,

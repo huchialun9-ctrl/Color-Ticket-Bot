@@ -39,7 +39,11 @@ oauthRouter.get('/callback', async (req, res) => {
         redirect_uri: redirectUriFor(req),
       }),
     });
-    if (!tokenRes.ok) throw new Error(`token exchange → ${tokenRes.status}`);
+    if (!tokenRes.ok) {
+      const detail = await tokenRes.text().catch(() => '');
+      console.error(`[oauth] token exchange → ${tokenRes.status} ${detail}`);
+      return res.status(502).send(`OAuth token 交換失敗（${tokenRes.status}）: ${detail}`);
+    }
     const tokens = await tokenRes.json();
 
     const user = await discordFetch('/users/@me', tokens.access_token);
@@ -54,8 +58,8 @@ oauthRouter.get('/callback', async (req, res) => {
     // 登入後回前端：優先 WEB_BASE_URL，否則沿用請求來源
     res.redirect(process.env.WEB_BASE_URL || requestOrigin(req));
   } catch (err) {
-    console.error('[oauth]', err.message);
-    res.status(500).send('OAuth 授權失敗');
+    console.error('[oauth]', err);
+    res.status(500).send(`OAuth 授權失敗：${err.message}`);
   }
 });
 
