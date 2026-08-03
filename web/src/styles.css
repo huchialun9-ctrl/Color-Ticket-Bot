@@ -100,6 +100,11 @@ body {
   font-weight: 600; cursor: pointer; transition: filter 0.15s ease;
 }
 .invite-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.invite-btn.login-invite {
+  background: var(--bg-2); color: var(--accent);
+  border: 1px solid var(--border); text-decoration: none; width: 100%;
+}
+.invite-btn.login-invite:hover { filter: none; background: var(--code-bg); }
 .palette-trigger {
   display: flex; justify-content: space-between; align-items: center;
   color: var(--muted); padding: 8px 10px;

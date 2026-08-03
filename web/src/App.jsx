@@ -19,6 +19,9 @@ const NAV = [
   { to: '/docs', label: '技術文件', icon: 'book' },
 ];
 
+const INVITE_URL =
+  'https://discord.com/oauth2/authorize?client_id=1533040341014417491&permissions=8&scope=bot%20applications.commands';
+
 function Shell() {
   const [me, setMe] = useState(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -28,14 +31,7 @@ function Shell() {
     api.me().then(setMe).catch(() => setMe(null));
   }, []);
 
-  const handleInvite = async () => {
-    try {
-      const { url } = await api.invite();
-      window.open(url, '_blank', 'noopener');
-    } catch {
-      window.open('/api/oauth/invite', '_blank', 'noopener');
-    }
-  };
+  const handleInvite = () => window.open(INVITE_URL, '_blank', 'noopener');
 
   // Ctrl+K / Cmd+K 全域搜尋
   useEffect(() => {
@@ -159,6 +155,11 @@ function Login() {
           </svg>
           使用 Discord 登入
         </button>
+
+        <a className="invite-btn login-invite" href={INVITE_URL} target="_blank" rel="noopener">
+          <Icon name="link" size={15} />
+          邀請機器人加入伺服器
+        </a>
 
         <p className="login-hint">登入即同意以 Discord 身份驗證並授權本服務管理你的伺服器。</p>
       </div>
