@@ -1,0 +1,31 @@
+{
+  "name": "chubb-man",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "炫彩票務小幫手 (CHubb-Man) — Discord 管理、票務客服與網頁儀表板一體化方案",
+  "workspaces": [
+    "bot",
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "dev:bot": "npm run dev --workspace bot",
+    "dev:api": "npm run dev --workspace api",
+    "dev:web": "npm run dev --workspace web",
+    "dev": "concurrently -n bot,api,web -c blue,green,magenta \"npm run dev:bot\" \"npm run dev:api\" \"npm run dev:web\"",
+    "start": "concurrently -n bot,api,web -c blue,green,magenta \"npm run start --workspace bot\" \"npm run start --workspace api\" \"npm run start --workspace web\"",
+    "deploy": "npm run deploy --workspace bot",
+    "build:web": "npm run build --workspace web",
+    "gen:secrets": "node scripts/gen-secrets.js",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "check": "node scripts/check-syntax.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

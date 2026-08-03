@@ -1,0 +1,124 @@
+/** Notion 風格線條圖示（stroke, currentColor），取代所有表情符號 */
+const PATHS = {
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </>
+  ),
+  shield: (
+    <>
+      <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z" />
+      <path d="M9 12l2 2 4-4" />
+    </>
+  ),
+  ticket: (
+    <>
+      <path d="M4 9V6a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 000 4v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3a2 2 0 000-4z" />
+      <line x1="14" y1="6" x2="14" y2="10" />
+    </>
+  ),
+  chart: (
+    <>
+      <line x1="4" y1="20" x2="4" y2="10" />
+      <line x1="10" y1="20" x2="10" y2="4" />
+      <line x1="16" y1="20" x2="16" y2="14" />
+      <line x1="2" y1="20" x2="22" y2="20" />
+    </>
+  ),
+  puzzle: (
+    <>
+      <path d="M10 7a2 2 0 114 0v1h3a1 1 0 011 1v3h-1a2 2 0 010 4h1v3a1 1 0 01-1 1h-3v-1a2 2 0 00-4 0v1H7a1 1 0 01-1-1v-3h1a2 2 0 000-4H6V9a1 1 0 011-1h3V7z" />
+    </>
+  ),
+  webhook: (
+    <>
+      <path d="M12 3a3 3 0 013 3v5a3 3 0 01-6 0V6a3 3 0 013-3z" />
+      <path d="M7 10l-3 4.5a3 3 0 104.5 3.5" />
+      <path d="M17 10l3 4.5a3 3 0 11-4.5 3.5" />
+      <path d="M12 13v4" />
+    </>
+  ),
+  book: (
+    <>
+      <path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
+      <path d="M8 5h8" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
+  moon: <path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" />,
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c.5-3.5 3.3-5.5 6.5-5.5s6 2 6.5 5.5" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M16 14.6c2.8.3 4.6 2.3 5 5.4" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </>
+  ),
+  check: <path d="M5 12l4 4 10-10" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
+  arrowUp: <path d="M12 19V5M5 12l7-7 7 7" />,
+  arrowDown: <path d="M12 5v14M19 12l-7 7-7-7" />,
+  link: (
+    <>
+      <path d="M10 14a5 5 0 007 0l3-3a5 5 0 00-7-7l-1.5 1.5" />
+      <path d="M14 10a5 5 0 00-7 0l-3 3a5 5 0 007 7l1.5-1.5" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M3 11l9-8 9 8" />
+      <path d="M5 9.5V21h14V9.5" />
+    </>
+  ),
+  server: (
+    <>
+      <rect x="3" y="4" width="18" height="7" rx="1.5" />
+      <rect x="3" y="13" width="18" height="7" rx="1.5" />
+      <line x1="7" y1="7.5" x2="7.01" y2="7.5" />
+      <line x1="7" y1="16.5" x2="7.01" y2="16.5" />
+    </>
+  ),
+  git: (
+    <>
+      <circle cx="6" cy="6" r="2.5" />
+      <circle cx="18" cy="6" r="2.5" />
+      <circle cx="12" cy="18" r="2.5" />
+      <path d="M8.5 6H18a0 0 0 010 0c0 4-2 6-5.5 7.5" />
+      <path d="M6 8.5v5c0 2.5 1.5 2.5 3.5 3" />
+    </>
+  ),
+};
+
+export default function Icon({ name, size = 18, className = '', ...rest }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`icon ${className}`}
+      aria-hidden="true"
+      {...rest}
+    >
+      {PATHS[name]}
+    </svg>
+  );
+}

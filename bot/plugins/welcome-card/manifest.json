@@ -1,0 +1,9 @@
+{
+  "name": "welcome-card",
+  "version": "1.0.0",
+  "description": "新成員加入歡迎訊息範例插件",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["SendMessages"]
+}
