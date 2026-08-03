@@ -3,13 +3,18 @@ import { config as loadEnv } from 'dotenv';
 import { fileURLToPath } from 'node:url';
 loadEnv({ path: fileURLToPath(new URL('../../.env', import.meta.url)) });
 
+const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:4000';
+
 export const config = {
   port: Number(process.env.API_PORT) || 4000,
-  apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:4000',
-  webBaseUrl: process.env.WEB_BASE_URL || 'http://localhost:5173',
+  apiBaseUrl,
+  // 生產環境網站即 API 本身 → webBaseUrl 預設沿用 API 位址
+  webBaseUrl: process.env.WEB_BASE_URL || apiBaseUrl,
   discordClientId: process.env.DISCORD_CLIENT_ID,
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET,
-  redirectUri: process.env.OAUTH_REDIRECT_URI || 'http://localhost:4000/api/oauth/callback',
+  // 重定向未指定時自動推導：<API_BASE_URL>/api/oauth/callback
+  redirectUri:
+    process.env.OAUTH_REDIRECT_URI || `${apiBaseUrl}/api/oauth/callback`,
   sessionSecret: process.env.SESSION_SECRET || 'dev_session_secret',
   mongodbUri: process.env.MONGODB_URI,
   redisUrl: process.env.REDIS_URL,
