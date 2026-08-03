@@ -6,11 +6,16 @@ export const oauthRouter = Router();
 
 const SCOPES = ['identify', 'guilds', 'guilds.members.read'].join(' ');
 
+/** 依請求來源自動推導對外網址（Render/VPS 皆免設定） */
+const requestOrigin = (req) => `${req.protocol}://${req.get('host')}`;
+/** 重定向 URI：優先取明確設定，否則由請求 host 推導 */
+const redirectUriFor = (req) => config.redirectUri || `${requestOrigin(req)}/api/oauth/callback`;
+
 /** 導向 Discord 授權頁 */
 oauthRouter.get('/login', (req, res) => {
   const params = new URLSearchParams({
     client_id: config.discordClientId,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUriFor(req),
     response_type: 'code',
     scope: SCOPES,
   });
@@ -31,7 +36,7 @@ oauthRouter.get('/callback', async (req, res) => {
         client_secret: config.discordClientSecret,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: config.redirectUri,
+        redirect_uri: redirectUriFor(req),
       }),
     });
     if (!tokenRes.ok) throw new Error(`token exchange → ${tokenRes.status}`);
@@ -46,7 +51,8 @@ oauthRouter.get('/callback', async (req, res) => {
       accessToken: tokens.access_token,
     };
 
-    res.redirect(config.webBaseUrl);
+    // 登入後回前端：優先 WEB_BASE_URL，否則沿用請求來源
+    res.redirect(process.env.WEB_BASE_URL || requestOrigin(req));
   } catch (err) {
     console.error('[oauth]', err.message);
     res.status(500).send('OAuth 授權失敗');

@@ -12,9 +12,8 @@ export const config = {
   webBaseUrl: process.env.WEB_BASE_URL || apiBaseUrl,
   discordClientId: process.env.DISCORD_CLIENT_ID,
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET,
-  // 重定向未指定時自動推導：<API_BASE_URL>/api/oauth/callback
-  redirectUri:
-    process.env.OAUTH_REDIRECT_URI || `${apiBaseUrl}/api/oauth/callback`,
+  // OAuth 重定向 URI：明確設定時使用；未設定時由 oauth.js 依請求 host 自動推導
+  redirectUri: process.env.OAUTH_REDIRECT_URI || null,
   sessionSecret: process.env.SESSION_SECRET || 'dev_session_secret',
   mongodbUri: process.env.MONGODB_URI,
   redisUrl: process.env.REDIS_URL,
