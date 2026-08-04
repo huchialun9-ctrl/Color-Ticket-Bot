@@ -5,6 +5,9 @@ import FormBuilder from '../components/FormBuilder.jsx';
 import Icon from '../components/Icon.jsx';
 import EmbedSender from '../components/EmbedSender.jsx';
 import TicketPanelDeployer from '../components/TicketPanelDeployer.jsx';
+import AutoResponseBuilder from '../components/AutoResponseBuilder.jsx';
+import AuditLogViewer from '../components/AuditLogViewer.jsx';
+
 
 /**
  * 單一伺服器控制台：
@@ -45,9 +48,11 @@ export default function GuildPanel({ guildId }) {
 
   const steps = [
     { label: '1. 客服欄位設計', icon: 'puzzle' },
-    { label: '2. 工單面板發布', icon: 'ticket' },
-    { label: '3. 廣播 Embed 發送', icon: 'webhook' },
-    { label: '4. 數據與工單管理', icon: 'chart' },
+    { label: '2. 關鍵字自動回覆', icon: 'users' },
+    { label: '3. 工單面板發布', icon: 'ticket' },
+    { label: '4. 廣播 Embed 發送', icon: 'webhook' },
+    { label: '5. 安全事件日誌', icon: 'shield' },
+    { label: '6. 數據與工單管理', icon: 'chart' },
   ];
 
   return (
@@ -102,17 +107,29 @@ export default function GuildPanel({ guildId }) {
 
       {activeStep === 1 && (
         <section className="settings-preview">
-          <TicketPanelDeployer guildId={guildId} />
+          <AutoResponseBuilder guildId={guildId} initialResponses={settings?.ticketing?.autoResponses || []} />
         </section>
       )}
 
       {activeStep === 2 && (
         <section className="settings-preview">
-          <EmbedSender guildId={guildId} />
+          <TicketPanelDeployer guildId={guildId} />
         </section>
       )}
 
       {activeStep === 3 && (
+        <section className="settings-preview">
+          <EmbedSender guildId={guildId} />
+        </section>
+      )}
+
+      {activeStep === 4 && (
+        <section className="settings-preview">
+          <AuditLogViewer guildId={guildId} />
+        </section>
+      )}
+
+      {activeStep === 5 && (
         <>
           <section className="grid-2col">
             <div className="card-block">

@@ -3,6 +3,7 @@ import { verifyHmac } from '../middleware/hmac.js';
 import { recordEvent } from '../services/metrics.js';
 import { Ticket } from '../models/Ticket.js';
 import { Guild } from '../models/Guild.js';
+import { AuditLog } from '../models/AuditLog.js';
 
 /**
  * Bot → API 的內部事件接收端（HMAC-SHA256 驗證）。
@@ -11,14 +12,39 @@ import { Guild } from '../models/Guild.js';
 export const internalRouter = Router();
 internalRouter.use(verifyHmac);
 
-internalRouter.post('/audit', (req, res) => {
+internalRouter.post('/audit', async (req, res) => {
   recordEvent('audit');
+  try {
+    const { guild, type, loggedAt, ...details } = req.body;
+    if (guild?.id) {
+      await AuditLog.create({
+        guildId: guild.id,
+        type: type || 'audit',
+        loggedAt: loggedAt ? new Date(loggedAt) : new Date(),
+        details,
+      });
+    }
+  } catch (e) {
+    console.error('[internal][audit] save error', e.message);
+  }
   res.json({ ok: true });
 });
 
 internalRouter.post('/security_alert', async (req, res) => {
   recordEvent('security_alert');
-  // 可選：更新 guild 設定或寫入防爆破計數
+  try {
+    const { guild, type, loggedAt, ...details } = req.body;
+    if (guild?.id) {
+      await AuditLog.create({
+        guildId: guild.id,
+        type: type || 'security_alert',
+        loggedAt: loggedAt ? new Date(loggedAt) : new Date(),
+        details,
+      });
+    }
+  } catch (e) {
+    console.error('[internal][security_alert] save error', e.message);
+  }
   res.json({ ok: true });
 });
 

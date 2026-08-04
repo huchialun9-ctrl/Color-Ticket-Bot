@@ -33,5 +33,22 @@ export default {
         return;
       }
     }
+
+    // ---- 關鍵字自動回覆 (Keyword Auto-Responder) ----
+    if (message.channel.name?.startsWith('ticket-')) {
+      const autoResponses = settings.ticketing?.autoResponses || [];
+      const text = message.content.toLowerCase();
+      for (const res of autoResponses) {
+        if (res.trigger && res.reply && text.includes(res.trigger.toLowerCase())) {
+          const embed = new EmbedBuilder()
+            .setColor(0x5865f2)
+            .setTitle(`🤖 系統自動回覆：${res.trigger}`)
+            .setDescription(res.reply)
+            .setFooter({ text: '此為常見問題自動答覆' });
+          await message.channel.send({ embeds: [embed] }).catch(() => {});
+          break; // 僅觸發第一個匹配項
+        }
+      }
+    }
   },
 };

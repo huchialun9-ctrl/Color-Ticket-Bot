@@ -5,6 +5,7 @@ import { getGlobalMetrics } from '../services/metrics.js';
 import { Guild } from '../models/Guild.js';
 import { Ticket } from '../models/Ticket.js';
 import { Warn } from '../models/Warn.js';
+import { AuditLog } from '../models/AuditLog.js';
 import { cache } from '../cache.js';
 
 export const apiRouter = Router();
@@ -310,5 +311,40 @@ apiRouter.post('/guilds/:guildId/embed', async (req, res) => {
   } catch (err) {
     console.error('[api][embed] send error', err);
     res.status(500).json({ error: 'failed_to_send_embed', detail: err.message });
+  }
+});
+
+/** 取得安全審查與稽核日誌 */
+apiRouter.get('/guilds/:guildId/audit-logs', async (req, res) => {
+  try {
+    const { guildId } = req.params;
+
+    // 權限驗證
+    const { session } = req;
+    const cacheKey = `guilds:${session.user.id}`;
+    let allRaw = await cache.get(cacheKey);
+    let all = allRaw ? JSON.parse(allRaw) : null;
+    if (!all) {
+      all = await fetchUserGuildsWithCache(session);
+    }
+    let guild = all.find((g) => g.id === guildId);
+    if (!guild) {
+      const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
+      if (botMember) {
+        guild = { id: guildId, member: { [session.user.id]: botMember } };
+      }
+    }
+    if (!guild || !isGuildAdmin(guild, session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    const logs = await AuditLog.find({ guildId })
+      .sort({ loggedAt: -1 })
+      .limit(200);
+
+    res.json({ logs });
+  } catch (err) {
+    console.error('[api][audit-logs] fetch error', err);
+    res.status(500).json({ error: 'failed_to_fetch_audit_logs', detail: err.message });
   }
 });
