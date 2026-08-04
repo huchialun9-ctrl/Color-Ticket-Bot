@@ -143,6 +143,10 @@ export async function discordFetch(path, accessToken, options = {}) {
 /** 檢查使用者是否具備該伺服器管理員權限（0x8 = ADMINISTRATOR） */
 export function isGuildAdmin(guild, user) {
   if (!guild || !user) return false;
+  if (guild.owner === true) return true;
+  if (guild.permissions !== undefined) {
+    return (BigInt(guild.permissions) & 0x8n) === 0x8n;
+  }
   if (guild.owner_id === user.id) return true;
   const member = guild.member?.[user.id];
   if (!member) return false;
