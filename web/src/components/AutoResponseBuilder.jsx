@@ -40,12 +40,12 @@ export default function AutoResponseBuilder({ guildId, initialResponses = [] }) 
 
   return (
     <div className="form-builder" style={{ textAlign: 'left' }}>
-      <div className="table-toolbar">
-        <div>
+      <div className="table-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 300px' }}>
           <h3>💬 關鍵字自動回覆設定</h3>
-          <p className="muted">當工單頻道（channel 名稱以 ticket- 開頭）收到匹配的關鍵字時，Bot 會自動發送預設回覆。</p>
+          <p className="muted" style={{ margin: '4px 0 0 0' }}>當工單頻道（channel 名稱以 ticket- 開頭）收到匹配的關鍵字時，Bot 會自動發送預設回覆。</p>
         </div>
-        <button className="primary" onClick={addRow}>
+        <button className="primary" onClick={addRow} style={{ flexShrink: 0, whiteSpace: 'nowrap', marginTop: '4px' }}>
           <Icon name="plus" size={15} /> 新增規則
         </button>
       </div>

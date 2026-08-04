@@ -75,7 +75,7 @@ export default function GuildPanel({ guildId }) {
       </section>
 
       {/* 漸進式設定流程 Stepper 導航 */}
-      <nav className="stepper-nav" style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '28px', flexWrap: 'wrap' }}>
+      <nav className="stepper-nav" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', borderBottom: '1px solid var(--border)', paddingBottom: '16px', marginBottom: '28px' }}>
         {steps.map((step, idx) => (
           <button
             key={idx}
@@ -84,13 +84,15 @@ export default function GuildPanel({ guildId }) {
             style={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              padding: '10px 18px',
-              fontSize: '14px',
+              padding: '10px 14px',
+              fontSize: '13px',
               fontWeight: activeStep === idx ? '600' : '500',
               borderRadius: '8px',
               transition: 'all 0.2s ease',
-              border: activeStep === idx ? '1px solid transparent' : '1px solid var(--border)'
+              border: activeStep === idx ? '1px solid transparent' : '1px solid var(--border)',
+              whiteSpace: 'nowrap',
             }}
           >
             <Icon name={step.icon} size={15} />
