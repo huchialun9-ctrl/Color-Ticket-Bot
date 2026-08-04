@@ -27,6 +27,7 @@ function parseRetryAfter(res) {
  *  - 自動處理 429 / 5xx 的簡單重試（尊重 Retry-After）
  *  - 失敗時拋出帶有 status 與 body 的錯誤
  *  - 讀取 BOT_TOKEN 或 DISCORD_BOT_TOKEN 作為 Bot token 備援
+ *  - 詳細日誌：在錯誤時印出 response headers 與 body，方便 debug（臨時）
  */
 export async function discordFetch(path, accessToken, { maxRetries = Number(process.env.DISCORD_FETCH_MAX_RETRIES || 3) } = {}) {
   const base = DISCORD_API || 'https://discord.com/api/v10';
@@ -54,9 +55,17 @@ export async function discordFetch(path, accessToken, { maxRetries = Number(proc
       }
     }
 
-    // Not OK: log details
+    // Not OK: log details (detailed)
     try {
-      console.error('[discordFetch] error', { path, url, status: res.status, body: text, headers: Object.fromEntries(res.headers) });
+      const headersObj = Object.fromEntries(res.headers);
+      console.error('[discordFetch][detailed] error', {
+        path,
+        url,
+        status: res.status,
+        body: text,
+        headers: headersObj,
+        attempt: attempt,
+      });
     } catch (e) {
       console.error('[discordFetch] logging failed', e);
     }
@@ -64,6 +73,11 @@ export async function discordFetch(path, accessToken, { maxRetries = Number(proc
     const err = new Error(`Discord API ${path} → ${res.status}`);
     err.status = res.status;
     err.body = text;
+    try {
+      err.headers = Object.fromEntries(res.headers);
+    } catch (e) {
+      err.headers = {}; 
+    }
     throw err;
   }
 
@@ -72,6 +86,11 @@ export async function discordFetch(path, accessToken, { maxRetries = Number(proc
     const tryBot = Boolean(BOT_TOKEN && attempt === 1 && accessToken && accessToken.startsWith('Bot') === false);
     // if accessToken looks like a Bot token already, don't mix
     const authHeader = tryBot ? `Bot ${BOT_TOKEN}` : accessToken.startsWith('Bot') ? `Bot ${accessToken}` : `Bearer ${accessToken}`;
+
+    // For safety, don't log full tokens; log which auth type is used
+    try {
+      console.debug('[discordFetch] attempting', { path, attempt, auth: tryBot ? 'bot' : accessToken.startsWith('Bot') ? 'bot(accessToken)' : 'bearer' });
+    } catch {}
 
     try {
       const result = await doFetch(authHeader);
@@ -83,8 +102,24 @@ export async function discordFetch(path, accessToken, { maxRetries = Number(proc
       // Determine if we should retry: rate limit (429) or server error (5xx) or network error
       const shouldRetry = (status === 429 || (status >= 500 && status < 600) || status === 502 || !status) && attempt <= maxRetries;
       if (shouldRetry) {
+        // If we have headers on the error, try to respect Retry-After
+        let retryAfterMs = undefined;
+        try {
+          if (err.headers) {
+            const ra = err.headers['retry-after'] || err.headers['x-ratelimit-reset-after'];
+            if (ra) {
+              const n = Number(ra);
+              if (!Number.isNaN(n)) retryAfterMs = Math.ceil(n * 1000);
+              else {
+                const t = Date.parse(ra);
+                if (!Number.isNaN(t)) retryAfterMs = Math.max(0, t - Date.now());
+              }
+            }
+          }
+        } catch {}
+
         const backoff = Math.pow(2, attempt) * 500;
-        const waitMs = backoff;
+        const waitMs = retryAfterMs ?? backoff;
         console.warn(`[discordFetch] retrying ${path} after ${waitMs}ms (status ${status}, attempt ${attempt})`);
         await sleep(waitMs);
         continue;
