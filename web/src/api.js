@@ -34,6 +34,9 @@ export const api = {
   saveSettings: (id, patch) =>
     request(`/guilds/${id}/settings`, { method: 'PUT', body: JSON.stringify(patch) }),
   tickets: (id, status = 'all') => request(`/guilds/${id}/tickets?status=${status}`),
+  channels: (id) => request(`/guilds/${id}/channels`),
+  sendEmbed: (id, payload) =>
+    request(`/guilds/${id}/embed`, { method: 'POST', body: JSON.stringify(payload) }),
   batchTickets: (id, ids, action, by) =>
     request(`/guilds/${id}/tickets/batch`, {
       method: 'POST',

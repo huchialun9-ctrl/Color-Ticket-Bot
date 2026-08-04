@@ -29,7 +29,8 @@ function parseRetryAfter(res) {
  *  - 讀取 BOT_TOKEN 或 DISCORD_BOT_TOKEN 作為 Bot token 備援
  *  - 詳細日誌：在錯誤時印出 response headers 與 body，方便 debug（臨時）
  */
-export async function discordFetch(path, accessToken, { maxRetries = Number(process.env.DISCORD_FETCH_MAX_RETRIES || 3) } = {}) {
+export async function discordFetch(path, accessToken, options = {}) {
+  const { maxRetries = Number(process.env.DISCORD_FETCH_MAX_RETRIES || 3), ...fetchOpts } = options;
   const base = DISCORD_API || 'https://discord.com/api/v10';
   const BOT_TOKEN = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN || null;
   let attempt = 0;
@@ -39,7 +40,15 @@ export async function discordFetch(path, accessToken, { maxRetries = Number(proc
     const url = `${base}${path}`;
     let res;
     try {
-      res = await fetch(url, { headers: { Authorization: authHeader } });
+      res = await fetch(url, {
+        method: fetchOpts.method || 'GET',
+        headers: {
+          Authorization: authHeader,
+          ...(fetchOpts.body ? { 'Content-Type': 'application/json' } : {}),
+          ...fetchOpts.headers,
+        },
+        body: fetchOpts.body,
+      });
     } catch (networkErr) {
       // Network-level error (DNS, connectivity) - may retry
       console.error('[discordFetch] network error', { path, url, err: networkErr });

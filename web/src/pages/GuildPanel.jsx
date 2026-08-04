@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import BarChart from '../components/BarChart.jsx';
 import FormBuilder from '../components/FormBuilder.jsx';
 import Icon from '../components/Icon.jsx';
+import EmbedSender from '../components/EmbedSender.jsx';
 
 /**
  * 單一伺服器控制台：
@@ -131,6 +132,10 @@ export default function GuildPanel({ guildId }) {
 
       <section className="settings-preview">
         <FormBuilder guildId={guildId} initialForm={settings?.ticketing?.form} />
+      </section>
+
+      <section className="settings-preview">
+        <EmbedSender guildId={guildId} />
       </section>
 
       <details className="raw-settings">

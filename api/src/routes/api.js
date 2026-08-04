@@ -213,3 +213,102 @@ apiRouter.put('/guilds/:guildId/settings', requireDB, async (req, res) => {
     res.status(500).json({ error: 'failed_to_save_settings', detail: err.message });
   }
 });
+
+/** 取得伺服器文字頻道列表 */
+apiRouter.get('/guilds/:guildId/channels', async (req, res) => {
+  try {
+    const { guildId } = req.params;
+    const botToken = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(500).json({ error: 'missing_bot_token' });
+    }
+
+    const { session } = req;
+    const cacheKey = `guilds:${session.user.id}`;
+    let allRaw = await cache.get(cacheKey);
+    let all = allRaw ? JSON.parse(allRaw) : null;
+    if (!all) {
+      all = await fetchUserGuildsWithCache(session);
+    }
+    let guild = all.find((g) => g.id === guildId);
+    if (!guild) {
+      const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
+      if (botMember) {
+        guild = { id: guildId, member: { [session.user.id]: botMember } };
+      }
+    }
+    if (!guild || !isGuildAdmin(guild, session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    const channels = await discordFetch(`/guilds/${guildId}/channels`, botToken);
+    // 過濾文字頻道 (Type 0)
+    const textChannels = channels
+      .filter((c) => c.type === 0)
+      .map((c) => ({ id: c.id, name: c.name }));
+
+    res.json({ channels: textChannels });
+  } catch (err) {
+    console.error('[api][channels] fetch error', err);
+    res.status(500).json({ error: 'failed_to_fetch_channels', detail: err.message });
+  }
+});
+
+/** 發送自訂 Embed 廣播訊息 */
+apiRouter.post('/guilds/:guildId/embed', async (req, res) => {
+  try {
+    const { guildId } = req.params;
+    const { channelId, title, description, color, imageUrl } = req.body;
+
+    if (!channelId || !description) {
+      return res.status(400).json({ error: 'channelId and description are required' });
+    }
+
+    const botToken = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(500).json({ error: 'missing_bot_token' });
+    }
+
+    const { session } = req;
+    const cacheKey = `guilds:${session.user.id}`;
+    let allRaw = await cache.get(cacheKey);
+    let all = allRaw ? JSON.parse(allRaw) : null;
+    if (!all) {
+      all = await fetchUserGuildsWithCache(session);
+    }
+    let guild = all.find((g) => g.id === guildId);
+    if (!guild) {
+      const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
+      if (botMember) {
+        guild = { id: guildId, member: { [session.user.id]: botMember } };
+      }
+    }
+    if (!guild || !isGuildAdmin(guild, session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    // 格式化 Embed payload
+    const embed = {
+      description,
+    };
+    if (title) embed.title = title;
+    if (color) {
+      embed.color = parseInt(color.replace('#', ''), 16);
+    } else {
+      embed.color = 0x36393f;
+    }
+    if (imageUrl) {
+      embed.image = { url: imageUrl };
+    }
+
+    await discordFetch(`/channels/${channelId}/messages`, botToken, {
+      method: 'POST',
+      body: JSON.stringify({ embeds: [embed] }),
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[api][embed] send error', err);
+    res.status(500).json({ error: 'failed_to_send_embed', detail: err.message });
+  }
+});
