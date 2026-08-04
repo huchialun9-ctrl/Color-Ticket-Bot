@@ -21,7 +21,7 @@ export default {
     const channel = interaction.channel;
 
     await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, {
-      SendMessages: state === 'lock',
+      SendMessages: state === 'lock' ? false : null,
     });
 
     await interaction.reply({
