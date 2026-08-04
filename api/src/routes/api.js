@@ -149,3 +149,67 @@ apiRouter.get('/guilds/:guildId', requireDB, async (req, res) => {
     return res.status(status).json({ error: 'external_api_error', detail: err.message, body: err.body ?? undefined });
   }
 });
+
+/** 儲存/更新伺服器設定與自訂表單 */
+apiRouter.put('/guilds/:guildId/settings', requireDB, async (req, res) => {
+  try {
+    const { guildId } = req.params;
+    const { session } = req;
+    const cacheKey = `guilds:${session.user.id}`;
+    let allRaw = await cache.get(cacheKey);
+    let all = allRaw ? JSON.parse(allRaw) : null;
+    if (!all) {
+      all = await fetchUserGuildsWithCache(session);
+    }
+    let guild = all.find((g) => g.id === guildId);
+    if (!guild) {
+      const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
+      if (botMember) {
+        guild = { id: guildId, member: { [session.user.id]: botMember } };
+      }
+    }
+    if (!guild || !isGuildAdmin(guild, session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    const patch = req.body;
+    const update = {};
+
+    // 支援表單編輯 (FormBuilder) 與其他系統設定
+    if (patch.form !== undefined) {
+      update['ticketing.form'] = patch.form;
+    }
+    if (patch.logChannelId !== undefined) {
+      update.logChannelId = patch.logChannelId;
+    }
+    if (patch.securityWebhookUrl !== undefined) {
+      update.securityWebhookUrl = patch.securityWebhookUrl;
+    }
+    if (patch.supportRoleId !== undefined) {
+      update['ticketing.supportRoleId'] = patch.supportRoleId;
+    }
+    if (patch.categoryId !== undefined) {
+      update['ticketing.categoryId'] = patch.categoryId;
+    }
+    if (patch.tokenCapacity !== undefined) {
+      update['automod.tokenCapacity'] = Number(patch.tokenCapacity);
+    }
+    if (patch.warnThreshold !== undefined) {
+      update['automod.warnThreshold'] = Number(patch.warnThreshold);
+    }
+    if (patch.automodEnabled !== undefined) {
+      update['automod.enabled'] = patch.automodEnabled === true || patch.automodEnabled === 'true';
+    }
+
+    const updatedGuild = await Guild.findOneAndUpdate(
+      { guildId },
+      { $set: update },
+      { upsert: true, new: true }
+    );
+
+    res.json({ ok: true, settings: updatedGuild });
+  } catch (err) {
+    console.error('[api][settings] update error', err);
+    res.status(500).json({ error: 'failed_to_save_settings', detail: err.message });
+  }
+});
