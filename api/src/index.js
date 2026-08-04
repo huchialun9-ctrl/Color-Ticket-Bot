@@ -14,6 +14,9 @@ import { pluginsRouter } from './routes/plugins.js';
 import { webhooksRouter } from './routes/webhooks.js';
 import { internalRouter } from './routes/internal.js';
 
+import connectRedis from 'connect-redis';
+import { createClient } from 'redis';
+
 const app = express();
 
 // Render/VPS 後方代理：信任第一層 proxy，使 req.protocol / X-Forwarded-Proto 正確
@@ -26,14 +29,7 @@ app.use(
   }),
 );
 app.use(express.json());
-app.use(
-  session({
-    secret: config.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 3600 * 1000 },
-  }),
-);
+// NOTE: session middleware will be registered inside start() after (optional) Redis connect.
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, ts: Date.now() });
@@ -70,7 +66,38 @@ app.use((err, _req, res, _next) => {
 
 export async function start() {
   await connectDB();
+
+  // connect cache first (cache.js will also try to connect using config.redisUrl)
   await cache.connect();
+
+  // Setup Redis-backed session store if REDIS_URL present
+  const RedisStore = connectRedis(session);
+  let redisClient = null;
+  if (config.redisUrl) {
+    try {
+      redisClient = createClient({ url: config.redisUrl });
+      redisClient.on('error', (e) => console.error('[redis] client error', e));
+      await redisClient.connect();
+      console.log('[redis] connected for session store');
+    } catch (err) {
+      console.warn('[redis] could not connect for session store, falling back to memory store', err.message);
+      redisClient = null;
+    }
+  } else {
+    console.warn('[redis] REDIS_URL not set, using memory session store');
+  }
+
+  const sessionOptions = {
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 3600 * 1000 },
+  };
+  if (redisClient) {
+    sessionOptions.store = new RedisStore({ client: redisClient });
+  }
+  app.use(session(sessionOptions));
+
   app.listen(config.port, () => {
     console.log(`[api] 已啟動於 ${config.apiBaseUrl}`);
   });
