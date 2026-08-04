@@ -11,7 +11,8 @@ COPY package.json package-lock.json ./
 COPY bot/package.json bot/package.json
 COPY api/package.json api/package.json
 COPY web/package.json web/package.json
-RUN npm ci --no-audit --no-fund
+# 臨時改為 npm install 以繞過 lockfile mismatch（請在有電腦時用 npm install --workspace=api 產生正式 lockfile，並把此行改回 npm ci）
+RUN npm install --no-audit --no-fund
 
 FROM node:22-alpine AS runner
 WORKDIR /app
