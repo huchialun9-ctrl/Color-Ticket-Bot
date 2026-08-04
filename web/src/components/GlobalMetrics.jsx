@@ -37,7 +37,7 @@ export default function GlobalMetrics({ metrics, status }) {
       {/* 歡迎與公告看板區 */}
       <section className="welcome-banner">
         <div className="welcome-text">
-          <h2>歡迎回來，管理員 👋</h2>
+          <h2>歡迎回來，管理員</h2>
           <p className="muted">此處顯示 CHubb-Man 跨伺服器的即時運作數據與安全狀態。防洗版、防爆破與票務客服系統均在背景穩定監控中。</p>
         </div>
         <div className="status-checker-grid">
@@ -62,7 +62,10 @@ export default function GlobalMetrics({ metrics, status }) {
 
       {/* 核心數據指標 */}
       <section className="dashboard-section">
-        <h3>📊 全平台即時營運指標</h3>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Icon name="chart" size={18} />
+          全平台即時營運指標
+        </h3>
         <div className="metric-grid">
           {CARD_DEFS.map((card) => (
             <div key={card.key} className="metric-card">
@@ -80,30 +83,48 @@ export default function GlobalMetrics({ metrics, status }) {
       {/* 快捷導航與提示 */}
       <section className="grid-2col" style={{ marginTop: '24px' }}>
         <div className="card-block quick-actions">
-          <h3>⚡ 快捷功能操作</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="shield" size={18} />
+            快捷功能操作
+          </h3>
           <p className="muted" style={{ marginBottom: '16px' }}>快速跳轉至各功能模組進行維護與設定作業。</p>
           <div className="action-links-grid">
             <Link to="/guilds" className="action-card-link">
-              <strong>🖥️ 伺服器管理與控制台</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Icon name="server" size={14} />
+                伺服器管理與控制台
+              </strong>
               <span>管理已加入伺服器、編輯票務表單</span>
             </Link>
             <Link to="/plugins" className="action-card-link">
-              <strong>🧩 插件管理中心</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Icon name="puzzle" size={14} />
+                插件管理中心
+              </strong>
               <span>發佈或管理機器人擴充模組</span>
             </Link>
             <Link to="/webhooks" className="action-card-link">
-              <strong>🔗 Webhook 測試面板</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Icon name="link" size={14} />
+                Webhook 測試面板
+              </strong>
               <span>模擬安全警報與事件推送</span>
             </Link>
             <Link to="/docs" className="action-card-link">
-              <strong>📖 技術規格文件</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Icon name="book" size={14} />
+                技術規格文件
+              </strong>
               <span>查閱 API 開發架構與命令參數規範</span>
             </Link>
           </div>
         </div>
 
         <div className="card-block system-notice">
-          <h3>📢 運作注意事項與安全宣告</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="alert" size={18} />
+            運作注意事項與安全宣告
+          </h3>
           <ul className="notice-list">
             <li>
               <strong>防爆破系統運作：</strong>
@@ -122,7 +143,10 @@ export default function GlobalMetrics({ metrics, status }) {
       </section>
 
       {status === 'offline' && (
-        <div className="banner danger-banner">⚠️ 無法與後端 API 伺服器取得連線，全域即時數據可能無法更新。</div>
+        <div className="banner danger-banner" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Icon name="alert" size={16} />
+          無法與後端 API 伺服器取得連線，全域即時數據可能無法更新。
+        </div>
       )}
     </div>
   );

@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <div className="page docs-page" style={{ textAlign: 'left' }}>
       <div className="docs-header">
-        <h1>🔒 隱私安全與 Cookies 政策</h1>
+        <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Icon name="lock" size={26} /> 隱私安全與 Cookies 政策</h1>
         <p className="muted">CHubb-Man 致力於保護您的 Discord 帳號隱私，並確保資料傳輸與儲存的絕對安全。</p>
       </div>
 

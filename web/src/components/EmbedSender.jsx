@@ -51,7 +51,7 @@ export default function EmbedSender({ guildId }) {
   return (
     <div className="embed-sender-container">
       <div className="builder-editor">
-        <h3>📢 炫彩 Embed 廣播發送器</h3>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icon name="webhook" size={18} /> 炫彩 Embed 廣播發送器</h3>
         <p className="muted" style={{ marginBottom: '16px' }}>
           建立自訂 Embed 訊息，並以 Bot 身份立即發送到指定的伺服器頻道。
         </p>

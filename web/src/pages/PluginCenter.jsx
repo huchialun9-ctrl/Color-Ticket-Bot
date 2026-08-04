@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
+import Icon from '../components/Icon.jsx';
 
 /**
  * 專業插件發佈中心：
@@ -160,7 +161,10 @@ export default function PluginCenter() {
       </section>
 
       <section className="table-section" style={{ marginTop: '32px' }}>
-        <h3>🛒 官方與社群外掛市集</h3>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Icon name="puzzle" size={18} />
+          官方與社群外掛市集
+        </h3>
         <p className="muted" style={{ marginBottom: '16px' }}>選擇下方熱門公共外掛，一鍵直接安裝並同步到您的 Discord Bot 中。</p>
         <div className="guild-grid" style={{ marginTop: '12px' }}>
           {marketplace.map((item) => {
@@ -168,7 +172,10 @@ export default function PluginCenter() {
             return (
               <div key={item.id} className="guild-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px', cursor: 'default' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <strong>📦 {item.name}</strong>
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Icon name="puzzle" size={14} />
+                    {item.name}
+                  </strong>
                   <span className="badge badge-approved" style={{ fontSize: '10px' }}>v{item.version}</span>
                 </div>
                 <p className="muted" style={{ fontSize: '12px', margin: '4px 0 12px 0', minHeight: '36px', textAlign: 'left' }}>

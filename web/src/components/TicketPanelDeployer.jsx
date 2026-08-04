@@ -45,7 +45,7 @@ export default function TicketPanelDeployer({ guildId }) {
   return (
     <div className="embed-sender-container">
       <div className="builder-editor">
-        <h3>📩 發布工單按鈕面板</h3>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icon name="ticket" size={18} /> 發布工單按鈕面板</h3>
         <p className="muted" style={{ marginBottom: '16px' }}>
           在此設定工單開啟按鈕與描述面板，並直接發布至指定的伺服器頻道中。
         </p>
