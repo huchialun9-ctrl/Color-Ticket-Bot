@@ -14,7 +14,7 @@ import { pluginsRouter } from './routes/plugins.js';
 import { webhooksRouter } from './routes/webhooks.js';
 import { internalRouter } from './routes/internal.js';
 
-import connectRedis from 'connect-redis';
+import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
 
 const app = express();
@@ -71,12 +71,19 @@ export async function start() {
   await cache.connect();
 
   // Setup Redis-backed session store if REDIS_URL present
-  const RedisStore = connectRedis(session);
   let redisClient = null;
   if (config.redisUrl) {
     try {
-      redisClient = createClient({ url: config.redisUrl });
-      redisClient.on('error', (e) => console.error('[redis] client error', e));
+      redisClient = createClient({
+        url: config.redisUrl,
+        socket: {
+          reconnectStrategy: (retries) => {
+            if (retries > 2) return new Error('Connection failed');
+            return 1000; // retry after 1s
+          }
+        }
+      });
+      redisClient.on('error', (e) => console.error('[redis] client error', e.message));
       await redisClient.connect();
       console.log('[redis] connected for session store');
     } catch (err) {
