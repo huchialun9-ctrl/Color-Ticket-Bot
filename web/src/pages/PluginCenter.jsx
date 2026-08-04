@@ -36,6 +36,16 @@ export default function PluginCenter() {
     fileRef.current.value = '';
   };
 
+  const handleStatusChange = async (id, status) => {
+    if (!guildId) return;
+    try {
+      await api.updatePluginStatus(guildId, id, status);
+      await loadPlugins(guildId);
+    } catch (e) {
+      alert(`更新失敗：${e.message}`);
+    }
+  };
+
   const buildForumPost = (p) => {
     const feat = features
       .split('\n')
@@ -113,7 +123,19 @@ export default function PluginCenter() {
                 <td><span className={`badge badge-${p.status}`}>{p.status}</span></td>
                 <td className="muted">{p.description || '—'}</td>
                 <td>
-                  <button onClick={() => openCompose(p)}>生成論壇貼文</button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => openCompose(p)}>生成論壇貼文</button>
+                    {p.status === 'pending' && (
+                      <>
+                        <button className="primary" onClick={() => handleStatusChange(p._id, 'approved')}>
+                          審核並安裝
+                        </button>
+                        <button className="ghost danger" onClick={() => handleStatusChange(p._id, 'rejected')}>
+                          拒絕
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

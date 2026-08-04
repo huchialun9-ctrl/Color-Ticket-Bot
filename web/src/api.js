@@ -43,6 +43,8 @@ export const api = {
       body: JSON.stringify({ ids, action, by }),
     }),
   plugins: (id) => request(`/guilds/${id}/plugins`),
+  updatePluginStatus: (guildId, id, status) =>
+    request(`/guilds/${guildId}/plugins/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   uploadPlugin: (id, file) => {
     const form = new FormData();
     form.append('file', file);

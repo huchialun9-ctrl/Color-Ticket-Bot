@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { cp } from 'node:fs/promises';
+import { join } from 'node:path';
 import { requireAuth, discordFetch, isGuildAdmin } from '../middleware/auth.js';
 import { requireDB } from '../middleware/db.js';
 import { scanPluginZip } from '../services/pluginScanner.js';
@@ -44,15 +46,36 @@ pluginsRouter.post('/guilds/:guildId/plugins/upload', upload.single('file'), asy
 });
 
 /** 更新狀態（pending → approved / published / rejected） */
+/** 更新狀態（pending → approved / published / rejected）並同步安裝至 Bot */
 pluginsRouter.patch('/guilds/:guildId/plugins/:id', async (req, res) => {
   const { id, guildId } = req.params;
   const { status, forumPost } = req.body;
 
-  const plugin = await Plugin.findOneAndUpdate(
-    { _id: id, guildId },
-    { $set: { ...(status ? { status } : {}), ...(forumPost ? { forumPost } : {}) } },
-    { new: true },
-  );
-  if (!plugin) return res.status(404).json({ error: 'not_found' });
-  res.json(plugin);
+  try {
+    const plugin = await Plugin.findOne({ _id: id, guildId });
+    if (!plugin) return res.status(404).json({ error: 'not_found' });
+
+    // 權限驗證
+    const all = await discordFetch('/users/@me/guilds', req.session.user.accessToken);
+    const guild = all.find((g) => g.id === guildId);
+    if (!isGuildAdmin(guild, req.session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    // 如果審核通過，將解壓的檔案複製到 bot/plugins 目錄下
+    if (status === 'approved' && plugin.status !== 'approved') {
+      const destPath = join(process.cwd(), 'bot', 'plugins', plugin.name);
+      await cp(plugin.filePath, destPath, { recursive: true });
+      console.log(`[plugin] 已成功將插件 ${plugin.name} 安裝至 ${destPath}`);
+    }
+
+    plugin.status = status || plugin.status;
+    if (forumPost !== undefined) plugin.forumPost = forumPost;
+    await plugin.save();
+
+    res.json(plugin);
+  } catch (err) {
+    console.error('[api][plugins] patch error', err);
+    res.status(500).json({ error: 'failed_to_update_plugin', detail: err.message });
+  }
 });
