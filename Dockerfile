@@ -7,7 +7,8 @@
 
 FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
+# 臨時：不要 COPY package-lock.json，避免有損壞或偽造的 lockfile 阻止 npm install
+COPY package.json ./
 COPY bot/package.json bot/package.json
 COPY api/package.json api/package.json
 COPY web/package.json web/package.json
