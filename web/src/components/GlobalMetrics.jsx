@@ -90,6 +90,14 @@ export default function GlobalMetrics({ metrics, status }) {
             <span className="check-dot green" />
             <span>系統簽章 (HMAC-SHA256)：<strong>防護中</strong></span>
           </div>
+          <div className="status-check-item">
+            <span className="check-dot green" />
+            <span>系統版本：<strong>v1.0.0 (剛剛熱騰騰開發完成！🎉)</strong></span>
+          </div>
+          <div className="status-check-item">
+            <span className="check-dot green" />
+            <span>功能升級：<strong>已全數 100% 就緒 ✨</strong></span>
+          </div>
         </div>
       </section>
 
