@@ -1,36 +1,44 @@
 :root {
-  --bg: #ffffff;
-  --fg: #37352f;
-  --muted: #787774;
+  --bg: #f5f6f8;
+  --fg: #212529;
+  --muted: #6c757d;
   --card: #ffffff;
-  --border: #e9e9e7;
-  --hover: rgba(55, 53, 47, 0.06);
-  --accent: #2383e2;
+  --border: #e9ecef;
+  --hover: rgba(88, 101, 242, 0.08);
+  --accent: #5865F2; /* Discord blurple */
   --accent-fg: #ffffff;
-  --code-bg: #f1f1ef;
-  --danger: #d9381e;
+  --code-bg: #f8f9fa;
+  --danger: #ff4757;
+  --shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  --glow: 0 0 12px rgba(88, 101, 242, 0.25);
+  --sidebar-bg: #ffffff;
 }
 
 :root[data-theme='dark'] {
-  --bg: #191919;
-  --fg: #ececec;
-  --muted: #9b9b9b;
-  --card: #202020;
-  --border: #2f2f2f;
-  --hover: rgba(255, 255, 255, 0.06);
-  --accent: #3b9af5;
+  --bg: #090a0f;
+  --fg: #f5f6fa;
+  --muted: #8b92a4;
+  --card: #12141a;
+  --border: rgba(255, 255, 255, 0.07);
+  --hover: rgba(88, 101, 242, 0.15);
+  --accent: #5865F2;
   --accent-fg: #ffffff;
-  --code-bg: #2a2a2a;
+  --code-bg: #1a1c24;
+  --danger: #ff4757;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --glow: 0 0 16px rgba(88, 101, 242, 0.35);
+  --sidebar-bg: #06070a;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', sans-serif;
+  font-family: 'Outfit', 'Inter', 'Noto Sans TC', sans-serif;
   background: var(--bg);
   color: var(--fg);
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-font-smoothing: antialiased;
 }
 
 .icon { flex-shrink: 0; }
@@ -170,25 +178,37 @@ button.danger { color: var(--danger); }
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 .metric-card {
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 16px 18px;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  border-radius: 12px; padding: 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.metric-card:hover { background: var(--hover); }
-.metric-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-.metric-value { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+}
+.metric-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+.metric-value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
 
 /* ---------- Guild list ---------- */
-.guild-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 20px; }
+.guild-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
 .guild-card {
-  display: flex; align-items: center; gap: 12px; padding: 14px;
-  border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: var(--fg);
-  transition: background 0.15s ease;
+  display: flex; align-items: center; gap: 12px; padding: 16px;
+  border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: var(--fg);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.guild-card:hover { background: var(--hover); }
+.guild-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  background: var(--hover);
+}
 .guild-card img, .guild-avatar {
   width: 40px; height: 40px; border-radius: 50%;
   background: var(--code-bg); color: var(--fg); display: flex; align-items: center;
