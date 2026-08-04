@@ -10,6 +10,8 @@ import GuildPanel from './pages/GuildPanel.jsx';
 import PluginCenter from './pages/PluginCenter.jsx';
 import WebhookTester from './pages/WebhookTester.jsx';
 import DocsPage from './pages/DocsPage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
+
 
 const NAV = [
   { to: '/dashboard', label: '全域看板', icon: 'chart' },
@@ -17,6 +19,7 @@ const NAV = [
   { to: '/plugins', label: '插件發佈中心', icon: 'puzzle' },
   { to: '/webhooks', label: 'Webhook 測試', icon: 'webhook' },
   { to: '/docs', label: '技術文件', icon: 'book' },
+  { to: '/privacy', label: '隱私與 Cookies', icon: 'lock' },
 ];
 
 const INVITE_URL =
@@ -90,6 +93,7 @@ function Shell() {
           <Route path="/plugins" element={<PluginCenter />} />
           <Route path="/webhooks" element={<WebhookTester />} />
           <Route path="/docs" element={<DocsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
         </Routes>
       </main>
 
