@@ -1,6 +1,6 @@
 import yauzl from 'yauzl';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
-import { join, basename } from 'node:path';
+import { join, basename, dirname } from 'node:path';
 import { config } from '../config.js';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
@@ -66,10 +66,20 @@ async function unzip(zipPath, outDir) {
         if (entry.fileName.endsWith('/')) return zipfile.readEntry();
         const safeName = entry.fileName.replace(/^\/+/, '').replace(/\.\./g, '');
         names.push(safeName);
+
+        const dest = join(outDir, safeName);
+        const dir = dirname(dest);
+
         zipfile.openReadStream(entry, (err2, stream) => {
           if (err2) return reject(err2);
           stream.on('error', reject);
-          writeFile(join(outDir, safeName), awaitStream(stream)).then(() => zipfile.readEntry());
+          awaitStream(stream)
+            .then(async (buf) => {
+              await mkdir(dir, { recursive: true });
+              await writeFile(dest, buf);
+              zipfile.readEntry();
+            })
+            .catch(reject);
         });
       });
       zipfile.on('end', () => resolve(names));
