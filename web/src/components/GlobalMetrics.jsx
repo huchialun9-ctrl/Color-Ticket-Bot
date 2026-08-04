@@ -37,8 +37,8 @@ export default function GlobalMetrics({ metrics, status }) {
       {/* 歡迎與公告看板區 */}
       <section className="welcome-banner">
         <div className="welcome-text">
-          <h2>歡迎回來，管理員</h2>
-          <p className="muted">此處顯示 CHubb-Man 跨伺服器的即時運作數據與安全狀態。防洗版、防爆破與票務客服系統均在背景穩定監控中。</p>
+          <h2>歡迎回來，管理員 ✨</h2>
+          <p className="muted">嘿！這裡正悄悄監控著 CHubb-Man 在各個伺服器的即時運作數據喔～ (๑•̀ㅂ•́)و✧ 防洗版、防爆破與客服工單系統都在後台乖乖守護中，請安心交給我們吧！(｀･ω･´)ゞ</p>
           <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <a href="https://github.com/huchialun9-ctrl/Color-Ticket-Bot" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'inline-flex' }}>
               <img src="https://img.shields.io/github/stars/huchialun9-ctrl/Color-Ticket-Bot?style=social" alt="GitHub Stars" />
