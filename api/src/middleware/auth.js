@@ -26,30 +26,23 @@ function parseRetryAfter(res) {
 /** Discord API 呼叫（OAuth2 Bearer token）
  *  - 自動處理 429 / 5xx 的簡單重試（尊重 Retry-After）
  *  - 失敗時拋出帶有 status 與 body 的錯誤
+ *  - 讀取 BOT_TOKEN 或 DISCORD_BOT_TOKEN 作為 Bot token 備援
  */
-export async function discordFetch(path, accessToken, { maxRetries = 3 } = {}) {
+export async function discordFetch(path, accessToken, { maxRetries = Number(process.env.DISCORD_FETCH_MAX_RETRIES || 3) } = {}) {
   const base = DISCORD_API || 'https://discord.com/api/v10';
+  const BOT_TOKEN = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN || null;
   let attempt = 0;
-  while (true) {
-    attempt += 1;
+
+  // Helper to actually perform fetch with a given auth header
+  async function doFetch(authHeader) {
     const url = `${base}${path}`;
     let res;
     try {
-      res = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      res = await fetch(url, { headers: { Authorization: authHeader } });
     } catch (networkErr) {
       // Network-level error (DNS, connectivity) - may retry
       console.error('[discordFetch] network error', { path, url, err: networkErr });
-      if (attempt <= maxRetries) {
-        const backoff = Math.pow(2, attempt) * 200;
-        await sleep(backoff);
-        continue;
-      }
-      const err = new Error(`Network error when calling Discord API ${path}`);
-      err.status = 502;
-      err.body = networkErr.message;
-      throw err;
+      throw networkErr;
     }
 
     const text = await res.text().catch(() => '');
@@ -68,21 +61,38 @@ export async function discordFetch(path, accessToken, { maxRetries = 3 } = {}) {
       console.error('[discordFetch] logging failed', e);
     }
 
-    const status = res.status;
-    // Determine if we should retry: rate limit (429) or server error (5xx)
-    const shouldRetry = (status === 429 || (status >= 500 && status < 600)) && attempt <= maxRetries;
-    if (shouldRetry) {
-      const retryAfterMs = parseRetryAfter(res) ?? Math.pow(2, attempt) * 500;
-      console.warn(`[discordFetch] retrying ${path} after ${retryAfterMs}ms (status ${status}, attempt ${attempt})`);
-      await sleep(retryAfterMs);
-      continue;
-    }
-
-    // No retry: throw error with details
-    const err = new Error(`Discord API ${path} → ${status}`);
-    err.status = status;
+    const err = new Error(`Discord API ${path} → ${res.status}`);
+    err.status = res.status;
     err.body = text;
     throw err;
+  }
+
+  while (true) {
+    attempt += 1;
+    const tryBot = Boolean(BOT_TOKEN && attempt === 1 && accessToken && accessToken.startsWith('Bot') === false);
+    // if accessToken looks like a Bot token already, don't mix
+    const authHeader = tryBot ? `Bot ${BOT_TOKEN}` : accessToken.startsWith('Bot') ? `Bot ${accessToken}` : `Bearer ${accessToken}`;
+
+    try {
+      const result = await doFetch(authHeader);
+      return result;
+    } catch (err) {
+      // network errors (no response) are stringified earlier; convert
+      const status = err.status || (err.name === 'FetchError' ? 502 : undefined);
+
+      // Determine if we should retry: rate limit (429) or server error (5xx) or network error
+      const shouldRetry = (status === 429 || (status >= 500 && status < 600) || status === 502 || !status) && attempt <= maxRetries;
+      if (shouldRetry) {
+        const backoff = Math.pow(2, attempt) * 500;
+        const waitMs = backoff;
+        console.warn(`[discordFetch] retrying ${path} after ${waitMs}ms (status ${status}, attempt ${attempt})`);
+        await sleep(waitMs);
+        continue;
+      }
+
+      // No retry: throw error with details
+      throw err;
+    }
   }
 }
 
