@@ -29,28 +29,9 @@ export async function getGlobalMetrics() {
   return stats;
 }
 
-const SEEDS = {
-  guildCount: 1420,
-  totalUsers: 684200,
-  bannedTotal: 14250,
-  violationsToday: 238,
-  raidTriggers: 12,
-  ticketsTotal: 78450,
-  ticketsOpen: 42,
-};
-
 async function computeMetrics() {
   if (!isDBReady()) {
-    return {
-      guildCount: memStats.guildCount + SEEDS.guildCount,
-      totalUsers: memStats.totalUsers + SEEDS.totalUsers,
-      bannedTotal: memStats.bannedTotal + SEEDS.bannedTotal,
-      violationsToday: memStats.violationsToday + SEEDS.violationsToday,
-      raidTriggers: memStats.raidTriggers + SEEDS.raidTriggers,
-      ticketsTotal: memStats.ticketsTotal + SEEDS.ticketsTotal,
-      ticketsOpen: memStats.ticketsOpen + SEEDS.ticketsOpen,
-      source: 'memory'
-    };
+    return { ...memStats, source: 'memory' };
   }
 
   const today = new Date().toISOString().slice(0, 10);
@@ -66,13 +47,13 @@ async function computeMetrics() {
     ]);
 
   return {
-    guildCount: guildCount + SEEDS.guildCount,
-    totalUsers: (totalUsers[0]?.total ?? 0) + SEEDS.totalUsers,
-    bannedTotal: bannedTotal + SEEDS.bannedTotal,
-    violationsToday: violationsToday + SEEDS.violationsToday,
-    raidTriggers: raidTriggers + SEEDS.raidTriggers,
-    ticketsTotal: ticketsTotal + SEEDS.ticketsTotal,
-    ticketsOpen: ticketsOpen + SEEDS.ticketsOpen,
+    guildCount,
+    totalUsers: totalUsers[0]?.total ?? 0,
+    bannedTotal,
+    violationsToday,
+    raidTriggers,
+    ticketsTotal,
+    ticketsOpen,
     source: 'database',
   };
 }

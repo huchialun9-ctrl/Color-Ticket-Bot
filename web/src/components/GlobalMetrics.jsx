@@ -69,23 +69,64 @@ export default function GlobalMetrics({ metrics, status }) {
         </div>
       </section>
 
-      {/* 核心數據指標 */}
+      {/* 核心數據指標：改用非對稱分欄 (Split Dashboard Panel) 以取代枯燥的網格 */}
       <section className="dashboard-section">
-        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
           <Icon name="chart" size={18} />
           全平台即時營運指標
         </h3>
-        <div className="metric-grid">
-          {CARD_DEFS.map((card) => (
-            <div key={card.key} className="metric-card">
-              <div className="metric-card-header">
-                <div className="metric-label">{card.label}</div>
-              </div>
-              <div className="metric-value" style={{ color: card.accent }}>
-                <CountUp value={metrics?.[card.key] ?? 0} />
-              </div>
+        
+        <div className="grid-2col" style={{ gap: '20px' }}>
+          {/* 左側：平台總體規模特大卡片 */}
+          <div className="metric-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px', textAlign: 'left', background: 'linear-gradient(135deg, var(--card), var(--code-bg))' }}>
+            <div style={{ marginBottom: '24px' }}>
+              <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
+                <Icon name="server" size={14} /> 已加入伺服器總數
+              </span>
+              <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: 'var(--accent)' }}>
+                <CountUp value={metrics?.guildCount ?? 0} />
+              </h2>
             </div>
-          ))}
+            <div>
+              <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
+                <Icon name="users" size={14} /> 服務總覆蓋使用者數
+              </span>
+              <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: '#3b9af5' }}>
+                <CountUp value={metrics?.totalUsers ?? 0} />
+              </h2>
+            </div>
+          </div>
+
+          {/* 右側：列表式細節指標 */}
+          <div className="card-block" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+                <Icon name="alert" size={15} style={{ color: '#ff4757' }} /> 全平台封禁人數
+              </span>
+              <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.bannedTotal ?? 0} /></strong>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+                <Icon name="shield" size={15} style={{ color: '#ffa502' }} /> 今日違規攔截數
+              </span>
+              <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.violationsToday ?? 0} /></strong>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+                <Icon name="lock" size={15} style={{ color: '#ff4757' }} /> 防爆破觸發次數
+              </span>
+              <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.raidTriggers ?? 0} /></strong>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '4px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+                <Icon name="ticket" size={15} style={{ color: '#2ed573' }} /> 歷史總處理工單數 (進行中: {metrics?.ticketsOpen ?? 0})
+              </span>
+              <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.ticketsTotal ?? 0} /></strong>
+            </div>
+          </div>
         </div>
       </section>
 
