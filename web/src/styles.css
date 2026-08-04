@@ -499,3 +499,157 @@ button.danger { color: var(--danger); }
   max-height: 300px;
   object-fit: contain;
 }
+
+/* Dashboard Container & Welcome Banner */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-banner {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .welcome-banner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.welcome-text h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.welcome-text p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-checker-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--code-bg);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.status-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.check-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.check-dot.green {
+  background: #2ed573;
+  box-shadow: 0 0 8px #2ed573;
+}
+
+.dashboard-section h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  text-align: left;
+}
+
+/* Quick Actions Card */
+.action-links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .action-links-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-decoration: none;
+  color: var(--fg);
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.action-card-link:hover {
+  border-color: var(--accent);
+  background: var(--card);
+  transform: translateY(-1px);
+}
+
+.action-card-link strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.action-card-link span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* System Notice Card */
+.notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.notice-list li {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notice-list li strong {
+  display: block;
+  color: var(--fg);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.notice-list li span {
+  color: var(--muted);
+}
+
+.danger-banner {
+  background: rgba(255, 71, 87, 0.08) !important;
+  border-color: rgba(255, 71, 87, 0.4) !important;
+  color: #ff4757 !important;
+  font-weight: 500;
+}
