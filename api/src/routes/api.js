@@ -5,35 +5,76 @@ import { getGlobalMetrics } from '../services/metrics.js';
 import { Guild } from '../models/Guild.js';
 import { Ticket } from '../models/Ticket.js';
 import { Warn } from '../models/Warn.js';
+import { cache } from '../cache.js';
 
 export const apiRouter = Router();
 apiRouter.use(requireAuth);
 
-const GUILDS_CACHE_TTL = 30 * 1000; // 30s
+const DEFAULT_GUILDS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const GUILDS_CACHE_TTL = Number(process.env.GUILDS_CACHE_TTL_MS || DEFAULT_GUILDS_CACHE_TTL_MS);
 
 /** 全域數據即時看板（DB 未連線時自動退回記憶體模式） */
 apiRouter.get('/metrics/global', async (_req, res) => {
   res.json(await getGlobalMetrics());
 });
 
+/** Single helper: try bot-first member check if BOT_TOKEN available */
+async function checkGuildAdminWithBot(guildId, userId) {
+  if (!process.env.BOT_TOKEN) return null;
+  try {
+    const member = await discordFetch(`/guilds/${guildId}/members/${userId}`, process.env.BOT_TOKEN);
+    return member;
+  } catch (err) {
+    console.warn('[bot-first] bot member check failed', { guildId, userId, err: err.message ?? err });
+    return null;
+  }
+}
+
 /** 單一伺服器控制台 */
 apiRouter.get('/guilds/:guildId', requireDB, async (req, res) => {
   try {
     const { guildId } = req.params;
     const { session } = req;
+    const cacheKey = `guilds:${session.user.id}`;
 
-    // 嘗試從 session 快取讀取 user guilds（減少對 Discord API 的請求）
-    let all;
-    const cache = req.session._guildsCache;
-    if (cache && Date.now() - cache.ts < GUILDS_CACHE_TTL) {
-      all = cache.data;
-    } else {
-      all = await discordFetch('/users/@me/guilds', session.user.accessToken);
-      req.session._guildsCache = { ts: Date.now(), data: all };
+    // 1) 嘗試從全域 cache（Redis 或記憶體）讀取
+    let allRaw = await cache.get(cacheKey);
+    let all = allRaw ? JSON.parse(allRaw) : null;
+
+    // 2) 去重 / in-flight promise support (store in session)
+    if (!all) {
+      if (req.session._guildsPromise) {
+        all = await req.session._guildsPromise;
+      } else {
+        req.session._guildsPromise = (async () => {
+          try {
+            const data = await discordFetch('/users/@me/guilds', session.user.accessToken);
+            await cache.set(cacheKey, JSON.stringify(data), Math.ceil(GUILDS_CACHE_TTL / 1000));
+            req.session._guildsCache = { ts: Date.now(), data };
+            return data;
+          } finally {
+            delete req.session._guildsPromise;
+          }
+        })();
+        all = await req.session._guildsPromise;
+      }
     }
 
-    const guild = all.find((g) => g.id === guildId);
+    // 3) find guild
+    let guild = all.find((g) => g.id === guildId);
+
+    // 4) If not found in user guilds (or user endpoint failed), try bot-first member check
+    if (!guild) {
+      const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
+      if (botMember) {
+        // construct minimal guild object from bot member info
+        guild = { id: guildId, member: { [session.user.id]: botMember } };
+      }
+    }
+
     if (!guild) return res.status(404).json({ error: 'guild_not_found' });
+
+    // 5) permission check
     if (!isGuildAdmin(guild, session.user)) {
       return res.status(403).json({ error: 'not_admin' });
     }
@@ -90,42 +131,4 @@ apiRouter.get('/guilds/:guildId', requireDB, async (req, res) => {
     const status = err.status && Number(err.status) >= 400 && Number(err.status) < 600 ? err.status : 502;
     return res.status(status).json({ error: 'external_api_error', detail: err.message, body: err.body ?? undefined });
   }
-});
-
-/** 儲存伺服器設定（如表單結構 ticketing.form） */
-apiRouter.put('/guilds/:guildId/settings', requireDB, async (req, res) => {
-  const { guildId } = req.params;
-  const { session } = req;
-  const patch = req.body;
-
-  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
-    return res.status(400).json({ error: 'invalid_payload' });
-  }
-
-  const all = await discordFetch('/users/@me/guilds', session.user.accessToken);
-  const guild = all.find((g) => g.id === guildId);
-  if (!guild) return res.status(404).json({ error: 'guild_not_found' });
-  if (!isGuildAdmin(guild, session.user)) {
-    return res.status(403).json({ error: 'not_admin' });
-  }
-
-  const sanitized = {
-    ticketing: { form: patch.form ?? null },
-    logChannelId: patch.logChannelId ?? undefined,
-    securityWebhookUrl: patch.securityWebhookUrl ?? undefined,
-  };
-
-  await Guild.findOneAndUpdate(
-    { guildId },
-    {
-      $set: {
-        'ticketing.form': sanitized.ticketing.form,
-        ...(sanitized.logChannelId !== undefined ? { logChannelId: sanitized.logChannelId } : {}),
-        ...(sanitized.securityWebhookUrl !== undefined ? { securityWebhookUrl: sanitized.securityWebhookUrl } : {}),
-      },
-    },
-    { upsert: true, new: true },
-  );
-
-  res.json({ ok: true });
 });
