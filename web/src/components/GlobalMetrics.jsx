@@ -34,6 +34,30 @@ export default function GlobalMetrics({ metrics, status }) {
         </div>
       </header>
 
+      {/* 開服宣傳廣播 Banner */}
+      <section className="welcome-banner" style={{ background: 'linear-gradient(135deg, rgba(88, 101, 242, 0.12), rgba(162, 89, 255, 0.12))', border: '1px solid rgba(88, 101, 242, 0.25)', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
+          <span style={{ fontSize: '32px' }}>🚀</span>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              CHubb-Man 炫彩小幫手正式開服上線啦！ 🎉 (≧▽≧)/
+            </h3>
+            <p className="muted" style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
+              第一款開源模組化、具備防爆破隔離與視覺化客服工單的高端 Discord 管理 Bot，現已全面開放引進！ (๑•̀ㅂ•́)و✧
+            </p>
+          </div>
+        </div>
+        <a 
+          className="button primary" 
+          href="https://discord.com/oauth2/authorize?client_id=1533040341014417491&permissions=8&scope=bot%20applications.commands"
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}
+        >
+          <Icon name="link" size={14} /> 立即邀請進駐
+        </a>
+      </section>
+
       {/* 歡迎與公告看板區 */}
       <section className="welcome-banner">
         <div className="welcome-text">
