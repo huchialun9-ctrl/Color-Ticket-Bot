@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 
 const PAGES = [
-  { id: 'dashboard', label: '全域看板 📊', path: '/dashboard', group: '首頁' },
-  { id: 'guilds', label: '伺服器管理 🤖', path: '/guilds', group: '管理' },
-  { id: 'plugins', label: '插件發佈中心 🧩', path: '/plugins', group: '開發' },
-  { id: 'webhooks', label: 'Webhook 測試 🔗', path: '/webhooks', group: '設定' },
-  { id: 'docs', label: '技術文件 📖', path: '/docs', group: '文件' },
-  { id: 'privacy', label: '隱私與 Cookies 政策 🔒', path: '/privacy', group: '政策' },
+  { id: 'dashboard', label: '全域看板', path: '/dashboard', group: '首頁' },
+  { id: 'guilds', label: '伺服器管理', path: '/guilds', group: '管理' },
+  { id: 'plugins', label: '插件發佈中心', path: '/plugins', group: '開發' },
+  { id: 'webhooks', label: 'Webhook 測試', path: '/webhooks', group: '設定' },
+  { id: 'docs', label: '技術文件', path: '/docs', group: '文件' },
+  { id: 'privacy', label: '隱私與 Cookies 政策', path: '/privacy', group: '政策' },
 ];
 
 export default function CommandPalette({ open, onClose }) {

@@ -47,12 +47,12 @@ export default function GuildPanel({ guildId }) {
   const warns = stats?.warns ?? {};
 
   const steps = [
-    { label: '1. 設計表單欄位 📋', icon: 'puzzle' },
-    { label: '2. 設定自動回覆 💬', icon: 'users' },
-    { label: '3. 發布按鈕面板 📩', icon: 'ticket' },
-    { label: '4. 傳送公告廣播 📢', icon: 'webhook' },
-    { label: '5. 防護警告紀錄 🛡️', icon: 'shield' },
-    { label: '6. 數據與客服單管理 📊', icon: 'chart' },
+    { label: '1. 設計表單欄位', icon: 'puzzle' },
+    { label: '2. 設定自動回覆', icon: 'users' },
+    { label: '3. 發布按鈕面板', icon: 'ticket' },
+    { label: '4. 傳送公告廣播', icon: 'webhook' },
+    { label: '5. 防護警告紀錄', icon: 'shield' },
+    { label: '6. 數據與客服單管理', icon: 'chart' },
   ];
 
   return (

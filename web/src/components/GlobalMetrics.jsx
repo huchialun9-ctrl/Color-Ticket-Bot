@@ -37,13 +37,13 @@ export default function GlobalMetrics({ metrics, status }) {
       {/* 開服宣傳廣播 Banner */}
       <section className="welcome-banner" style={{ background: 'linear-gradient(135deg, rgba(88, 101, 242, 0.12), rgba(162, 89, 255, 0.12))', border: '1px solid rgba(88, 101, 242, 0.25)', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', textAlign: 'left' }}>
-          <span style={{ fontSize: '32px' }}>🚀</span>
+          <span style={{ fontSize: '32px' }}></span>
           <div>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              CHubb-Man 正式開服啦！ 🎉 (≧▽≧)/
+              CHubb-Man 伺服器管理系統已啟動
             </h3>
             <p className="muted" style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
-              這是我們做出來的模組化 Discord 機器人，程式碼完全開源！工單客服跟防防護爆破功能都寫好了，快點右邊按鈕拉我進去你的伺服器吧！ (๑•̀ㅂ•́)و✧
+              模組化 Discord 管理系統，程式碼完全開源。支援工單客服與防護爆破功能，點選右方按鈕即可邀請機器人加入。
             </p>
           </div>
         </div>
@@ -61,8 +61,8 @@ export default function GlobalMetrics({ metrics, status }) {
       {/* 歡迎與公告看板區 */}
       <section className="welcome-banner">
         <div className="welcome-text">
-          <h2>歡迎回來，管理員 ✨</h2>
-          <p className="muted">嘿！這裡正悄悄監控著 CHubb-Man 在各個伺服器的即時運作數據喔～ (๑•̀ㅂ•́)و✧ 防洗版、防爆破與客服工單系統都在後台乖乖守護中，請安心交給我們吧！(｀･ω･´)ゞ</p>
+          <h2>歡迎回來，管理員</h2>
+          <p className="muted">此處顯示 CHubb-Man 伺服器的運作數據與安全狀態。防防護爆破與客服工單系統均在背景監控中。</p>
           <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <a href="https://github.com/huchialun9-ctrl/Color-Ticket-Bot" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'inline-flex' }}>
               <img src="https://img.shields.io/github/stars/huchialun9-ctrl/Color-Ticket-Bot?style=social" alt="GitHub Stars" />
@@ -88,15 +88,15 @@ export default function GlobalMetrics({ metrics, status }) {
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>API 加密安全通道：<strong>加密防護中 🔒</strong></span>
+            <span>API 加密安全通道：<strong>加密防護中</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>核心系統版本：<strong>v1.0.0 (剛剛熱騰騰開發完成！🎉)</strong></span>
+            <span>核心系統版本：<strong>v1.0.0 (已更新至最新穩定版)</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>最新功能升級：<strong>已全數 100% 就緒 ✨</strong></span>
+            <span>最新功能升級：<strong>已全數配置完成</strong></span>
           </div>
         </div>
       </section>
@@ -105,7 +105,7 @@ export default function GlobalMetrics({ metrics, status }) {
       <section className="dashboard-section">
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
           <Icon name="chart" size={18} />
-          🚀 全台伺服器累計數據
+          全台伺服器累計數據
         </h3>
         
         <div className="grid-2col" style={{ gap: '20px' }}>
@@ -113,7 +113,7 @@ export default function GlobalMetrics({ metrics, status }) {
           <div className="metric-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px', textAlign: 'left', background: 'linear-gradient(135deg, var(--card), var(--code-bg))' }}>
             <div style={{ marginBottom: '24px' }}>
               <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
-                <Icon name="server" size={14} /> 🤖 正在服務的伺服器數量
+                <Icon name="server" size={14} /> 正在服務的伺服器數量
               </span>
               <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: 'var(--accent)' }}>
                 <CountUp value={metrics?.guildCount ?? 0} />
@@ -121,7 +121,7 @@ export default function GlobalMetrics({ metrics, status }) {
             </div>
             <div>
               <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
-                <Icon name="users" size={14} /> 👥 累計保護的 Discord 成員數
+                <Icon name="users" size={14} /> 累計保護的 Discord 成員數
               </span>
               <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: '#3b9af5' }}>
                 <CountUp value={metrics?.totalUsers ?? 0} />
@@ -133,28 +133,28 @@ export default function GlobalMetrics({ metrics, status }) {
           <div className="card-block" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="alert" size={15} style={{ color: '#ff4757' }} /> 🚫 被踢出或封鎖的人數
+                <Icon name="alert" size={15} style={{ color: '#ff4757' }} /> 被踢出或封鎖的人數
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.bannedTotal ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="shield" size={15} style={{ color: '#ffa502' }} /> 🛡️ 今日自動擋下的違規發言
+                <Icon name="shield" size={15} style={{ color: '#ffa502' }} /> 今日自動擋下的違規發言
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.violationsToday ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="lock" size={15} style={{ color: '#ff4757' }} /> 🔥 今日防爆破保護啟動次數
+                <Icon name="lock" size={15} style={{ color: '#ff4757' }} /> 今日防爆破保護啟動次數
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.raidTriggers ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '4px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="ticket" size={15} style={{ color: '#2ed573' }} /> 🎫 歷史處理過的客服單總數 (處理中: {metrics?.ticketsOpen ?? 0})
+                <Icon name="ticket" size={15} style={{ color: '#2ed573' }} /> 歷史處理過的客服單總數 (處理中: {metrics?.ticketsOpen ?? 0})
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.ticketsTotal ?? 0} /></strong>
             </div>
