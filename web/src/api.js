@@ -42,6 +42,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ ids, action, by }),
     }),
+  deployTicketPanel: (guildId, payload) =>
+    request(`/guilds/${guildId}/tickets/deploy-panel`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   plugins: (id) => request(`/guilds/${id}/plugins`),
   updatePluginStatus: (guildId, id, status) =>
     request(`/guilds/${guildId}/plugins/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),

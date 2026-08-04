@@ -48,3 +48,62 @@ ticketsRouter.get('/guilds/:guildId/tickets/:ticketId', async (req, res) => {
   if (!ticket) return res.status(404).json({ error: 'not_found' });
   res.json(ticket);
 });
+
+/** 在指定頻道發布工單按鈕面板 */
+ticketsRouter.post('/guilds/:guildId/tickets/deploy-panel', async (req, res) => {
+  try {
+    const { guildId } = req.params;
+    const { channelId, title, description, buttonLabel } = req.body;
+
+    if (!channelId) {
+      return res.status(400).json({ error: 'channelId is required' });
+    }
+
+    const botToken = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(500).json({ error: 'missing_bot_token' });
+    }
+
+    // 權限驗證
+    const { session } = req;
+    let all = await discordFetch('/users/@me/guilds', session.user.accessToken);
+    let guild = all.find((g) => g.id === guildId);
+    if (!guild || !isGuildAdmin(guild, session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    // 構建 Discord 訊息 Payload
+    const messagePayload = {
+      embeds: [
+        {
+          title: title || '客服中心',
+          description: description || '點擊下方按鈕建立私密客服單。',
+          color: 0x36393f,
+        },
+      ],
+      components: [
+        {
+          type: 1, // ActionRow
+          components: [
+            {
+              type: 2, // Button
+              style: 1, // Primary (blurple)
+              label: buttonLabel || '📩 開啟客服單',
+              custom_id: 'ticket:open',
+            },
+          ],
+        },
+      ],
+    };
+
+    await discordFetch(`/channels/${channelId}/messages`, botToken, {
+      method: 'POST',
+      body: JSON.stringify(messagePayload),
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[tickets][deploy-panel] error', err);
+    res.status(500).json({ error: 'failed_to_deploy_panel', detail: err.message });
+  }
+});
