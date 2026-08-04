@@ -88,6 +88,7 @@ const MARKETPLACE_PLUGINS = [
     description: '反應貼圖身分組：點擊按鈕或反應自動取得/移除指定身分組。',
     author: 'CHubbMan Team',
     runtime: 'discord.js',
+    bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60',
     code: `export default {
   name: 'reaction-roles',
   version: '1.0.0',
@@ -119,6 +120,7 @@ const MARKETPLACE_PLUGINS = [
     description: '社群經驗值與等級系統：發言增加經驗，自動升級並給予稱號身分組。',
     author: 'CHubbMan Team',
     runtime: 'discord.js',
+    bannerUrl: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=500&auto=format&fit=crop&q=60',
     code: `export default {
   name: 'leveling-system',
   version: '1.1.0',

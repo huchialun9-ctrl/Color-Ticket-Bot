@@ -170,27 +170,36 @@ export default function PluginCenter() {
           {marketplace.map((item) => {
             const isInstalled = plugins.some((p) => p.name === item.name && p.status === 'approved');
             return (
-              <div key={item.id} className="guild-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px', cursor: 'default' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Icon name="puzzle" size={14} />
-                    {item.name}
-                  </strong>
-                  <span className="badge badge-approved" style={{ fontSize: '10px' }}>v{item.version}</span>
-                </div>
-                <p className="muted" style={{ fontSize: '12px', margin: '4px 0 12px 0', minHeight: '36px', textAlign: 'left' }}>
-                  {item.description}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--muted)' }}>作者: {item.author}</span>
-                  <button
-                    className={isInstalled ? 'ghost' : 'primary'}
-                    disabled={isInstalled}
-                    onClick={() => handleInstallMarketplace(item.id)}
-                    style={{ padding: '4px 10px', fontSize: '12px' }}
-                  >
-                    {isInstalled ? '已安裝啟用' : '一鍵安裝'}
-                  </button>
+              <div key={item.id} className="guild-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '0', cursor: 'default', padding: '0', overflow: 'hidden' }}>
+                {item.bannerUrl && (
+                  <img
+                    src={item.bannerUrl}
+                    alt={item.name}
+                    style={{ width: '100%', height: '120px', objectFit: 'cover', borderBottom: '1px solid var(--border)' }}
+                  />
+                )}
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Icon name="puzzle" size={14} />
+                      {item.name}
+                    </strong>
+                    <span className="badge badge-approved" style={{ fontSize: '10px' }}>v{item.version}</span>
+                  </div>
+                  <p className="muted" style={{ fontSize: '12px', margin: '4px 0 12px 0', minHeight: '36px', textAlign: 'left' }}>
+                    {item.description}
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>作者: {item.author}</span>
+                    <button
+                      className={isInstalled ? 'ghost' : 'primary'}
+                      disabled={isInstalled}
+                      onClick={() => handleInstallMarketplace(item.id)}
+                      style={{ padding: '4px 10px', fontSize: '12px' }}
+                    >
+                      {isInstalled ? '已安裝啟用' : '一鍵安裝'}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
