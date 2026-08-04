@@ -39,6 +39,15 @@ export default function GlobalMetrics({ metrics, status }) {
         <div className="welcome-text">
           <h2>歡迎回來，管理員</h2>
           <p className="muted">此處顯示 CHubb-Man 跨伺服器的即時運作數據與安全狀態。防洗版、防爆破與票務客服系統均在背景穩定監控中。</p>
+          <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <a href="https://github.com/huchialun9-ctrl/Color-Ticket-Bot" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+              <img src="https://img.shields.io/github/stars/huchialun9-ctrl/Color-Ticket-Bot?style=social" alt="GitHub Stars" />
+            </a>
+            <a href="https://github.com/huchialun9-ctrl/Color-Ticket-Bot" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+              <img src="https://img.shields.io/github/forks/huchialun9-ctrl/Color-Ticket-Bot?style=social" alt="GitHub Forks" />
+            </a>
+            <span style={{ fontSize: '12px', color: 'var(--muted)', marginLeft: '4px' }}>授權協議: <strong>MIT License</strong></span>
+          </div>
         </div>
         <div className="status-checker-grid">
           <div className="status-check-item">

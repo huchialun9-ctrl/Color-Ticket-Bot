@@ -77,6 +77,16 @@ function Shell() {
             <Icon name="link" size={15} />
             邀請機器人
           </button>
+          <a
+            className="invite-btn"
+            href="https://github.com/huchialun9-ctrl/Color-Ticket-Bot"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ background: 'var(--code-bg)', color: 'var(--fg)', border: '1px solid var(--border)', textDecoration: 'none' }}
+          >
+            <Icon name="github" size={15} />
+            GitHub 開源專案
+          </a>
           <div className="user-chip">
             <span>{me.username}</span>
             <button className="ghost" onClick={api.logout}>登出</button>
