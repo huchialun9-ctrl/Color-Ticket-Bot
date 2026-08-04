@@ -40,10 +40,10 @@ export default function GlobalMetrics({ metrics, status }) {
           <span style={{ fontSize: '32px' }}>🚀</span>
           <div>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              CHubb-Man 炫彩小幫手正式開服上線啦！ 🎉 (≧▽≧)/
+              CHubb-Man 正式開服啦！ 🎉 (≧▽≧)/
             </h3>
             <p className="muted" style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
-              第一款開源模組化、具備防爆破隔離與視覺化客服工單的高端 Discord 管理 Bot，現已全面開放引進！ (๑•̀ㅂ•́)و✧
+              這是我們做出來的模組化 Discord 機器人，程式碼完全開源！工單客服跟防防護爆破功能都寫好了，快點右邊按鈕拉我進去你的伺服器吧！ (๑•̀ㅂ•́)و✧
             </p>
           </div>
         </div>
