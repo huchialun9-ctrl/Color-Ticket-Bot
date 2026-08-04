@@ -76,27 +76,27 @@ export default function GlobalMetrics({ metrics, status }) {
         <div className="status-checker-grid">
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>Discord API 連線：<strong>正常 (100%)</strong></span>
+            <span>Discord 連線狀態：<strong>連線正常 (100%)</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>MongoDB 資料庫：<strong>已連線</strong></span>
+            <span>資料庫儲存狀態：<strong>已連線</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>Redis 快取系統：<strong>已就緒</strong></span>
+            <span>快取記憶體系統：<strong>已就緒</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>系統簽章 (HMAC-SHA256)：<strong>防護中</strong></span>
+            <span>API 加密安全通道：<strong>加密防護中 🔒</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>系統版本：<strong>v1.0.0 (剛剛熱騰騰開發完成！🎉)</strong></span>
+            <span>核心系統版本：<strong>v1.0.0 (剛剛熱騰騰開發完成！🎉)</strong></span>
           </div>
           <div className="status-check-item">
             <span className="check-dot green" />
-            <span>功能升級：<strong>已全數 100% 就緒 ✨</strong></span>
+            <span>最新功能升級：<strong>已全數 100% 就緒 ✨</strong></span>
           </div>
         </div>
       </section>
@@ -105,7 +105,7 @@ export default function GlobalMetrics({ metrics, status }) {
       <section className="dashboard-section">
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
           <Icon name="chart" size={18} />
-          全平台即時營運指標
+          🚀 全台伺服器累計數據
         </h3>
         
         <div className="grid-2col" style={{ gap: '20px' }}>
@@ -113,7 +113,7 @@ export default function GlobalMetrics({ metrics, status }) {
           <div className="metric-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px', textAlign: 'left', background: 'linear-gradient(135deg, var(--card), var(--code-bg))' }}>
             <div style={{ marginBottom: '24px' }}>
               <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
-                <Icon name="server" size={14} /> 已加入伺服器總數
+                <Icon name="server" size={14} /> 🤖 正在服務的伺服器數量
               </span>
               <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: 'var(--accent)' }}>
                 <CountUp value={metrics?.guildCount ?? 0} />
@@ -121,7 +121,7 @@ export default function GlobalMetrics({ metrics, status }) {
             </div>
             <div>
               <span className="muted" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
-                <Icon name="users" size={14} /> 服務總覆蓋使用者數
+                <Icon name="users" size={14} /> 👥 累計保護的 Discord 成員數
               </span>
               <h2 style={{ fontSize: '42px', margin: '8px 0 0 0', fontWeight: '800', color: '#3b9af5' }}>
                 <CountUp value={metrics?.totalUsers ?? 0} />
@@ -133,28 +133,28 @@ export default function GlobalMetrics({ metrics, status }) {
           <div className="card-block" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="alert" size={15} style={{ color: '#ff4757' }} /> 全平台封禁人數
+                <Icon name="alert" size={15} style={{ color: '#ff4757' }} /> 🚫 被踢出或封鎖的人數
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.bannedTotal ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="shield" size={15} style={{ color: '#ffa502' }} /> 今日違規攔截數
+                <Icon name="shield" size={15} style={{ color: '#ffa502' }} /> 🛡️ 今日自動擋下的違規發言
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.violationsToday ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="lock" size={15} style={{ color: '#ff4757' }} /> 防爆破觸發次數
+                <Icon name="lock" size={15} style={{ color: '#ff4757' }} /> 🔥 今日防爆破保護啟動次數
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.raidTriggers ?? 0} /></strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '4px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-                <Icon name="ticket" size={15} style={{ color: '#2ed573' }} /> 歷史總處理工單數 (進行中: {metrics?.ticketsOpen ?? 0})
+                <Icon name="ticket" size={15} style={{ color: '#2ed573' }} /> 🎫 歷史處理過的客服單總數 (處理中: {metrics?.ticketsOpen ?? 0})
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.ticketsTotal ?? 0} /></strong>
             </div>
