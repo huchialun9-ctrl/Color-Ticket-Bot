@@ -14,10 +14,12 @@ export default function PluginCenter() {
   const [composing, setComposing] = useState(null);
   const [features, setFeatures] = useState('');
   const [commands, setCommands] = useState('');
+  const [marketplace, setMarketplace] = useState([]);
   const fileRef = useRef();
 
   useEffect(() => {
     api.guilds().then((d) => setGuilds(d.guilds)).catch(() => {});
+    api.marketplaceList().then((d) => setMarketplace(d.plugins || [])).catch(() => {});
   }, []);
 
   const loadPlugins = async (id) => {
@@ -43,6 +45,17 @@ export default function PluginCenter() {
       await loadPlugins(guildId);
     } catch (e) {
       alert(`更新失敗：${e.message}`);
+    }
+  };
+
+  const handleInstallMarketplace = async (pluginId) => {
+    if (!guildId) return alert('請先選擇要安裝到的伺服器！');
+    try {
+      await api.installMarketplacePlugin(guildId, pluginId);
+      alert('已成功從市集安裝並啟用外掛！');
+      await loadPlugins(guildId);
+    } catch (e) {
+      alert(`安裝失敗：${e.message}`);
     }
   };
 
@@ -144,6 +157,38 @@ export default function PluginCenter() {
             )}
           </tbody>
         </table>
+      </section>
+
+      <section className="table-section" style={{ marginTop: '32px' }}>
+        <h3>🛒 官方與社群外掛市集</h3>
+        <p className="muted" style={{ marginBottom: '16px' }}>選擇下方熱門公共外掛，一鍵直接安裝並同步到您的 Discord Bot 中。</p>
+        <div className="guild-grid" style={{ marginTop: '12px' }}>
+          {marketplace.map((item) => {
+            const isInstalled = plugins.some((p) => p.name === item.name && p.status === 'approved');
+            return (
+              <div key={item.id} className="guild-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px', cursor: 'default' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                  <strong>📦 {item.name}</strong>
+                  <span className="badge badge-approved" style={{ fontSize: '10px' }}>v{item.version}</span>
+                </div>
+                <p className="muted" style={{ fontSize: '12px', margin: '4px 0 12px 0', minHeight: '36px', textAlign: 'left' }}>
+                  {item.description}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)' }}>作者: {item.author}</span>
+                  <button
+                    className={isInstalled ? 'ghost' : 'primary'}
+                    disabled={isInstalled}
+                    onClick={() => handleInstallMarketplace(item.id)}
+                    style={{ padding: '4px 10px', fontSize: '12px' }}
+                  >
+                    {isInstalled ? '已安裝啟用' : '一鍵安裝'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {composing && (

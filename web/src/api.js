@@ -45,6 +45,12 @@ export const api = {
   plugins: (id) => request(`/guilds/${id}/plugins`),
   updatePluginStatus: (guildId, id, status) =>
     request(`/guilds/${guildId}/plugins/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  marketplaceList: () => request('/plugins/marketplace/list'),
+  installMarketplacePlugin: (guildId, pluginId) =>
+    request(`/guilds/${guildId}/plugins/marketplace/install`, {
+      method: 'POST',
+      body: JSON.stringify({ pluginId }),
+    }),
   uploadPlugin: (id, file) => {
     const form = new FormData();
     form.append('file', file);
