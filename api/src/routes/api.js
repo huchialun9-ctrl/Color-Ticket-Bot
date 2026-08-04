@@ -20,14 +20,26 @@ apiRouter.get('/metrics/global', async (_req, res) => {
 
 /** Single helper: try bot-first member check if BOT_TOKEN available */
 async function checkGuildAdminWithBot(guildId, userId) {
-  if (!process.env.BOT_TOKEN) return null;
+  const botToken = process.env.BOT_TOKEN || process.env.DISCORD_BOT_TOKEN || null;
+  if (!botToken) return null;
   try {
-    const member = await discordFetch(`/guilds/${guildId}/members/${userId}`, process.env.BOT_TOKEN);
+    const member = await discordFetch(`/guilds/${guildId}/members/${userId}`, botToken);
     return member;
   } catch (err) {
     console.warn('[bot-first] bot member check failed', { guildId, userId, err: err.message ?? err });
     return null;
   }
+}
+
+async function fetchUserGuildsWithCache(session) {
+  const cacheKey = `guilds:${session.user.id}`;
+  const cached = await cache.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  // no cache: try to fetch and populate
+  const data = await discordFetch('/users/@me/guilds', session.user.accessToken);
+  await cache.set(cacheKey, JSON.stringify(data), Math.ceil(GUILDS_CACHE_TTL / 1000));
+  return data;
 }
 
 /** 單一伺服器控制台 */
@@ -37,44 +49,49 @@ apiRouter.get('/guilds/:guildId', requireDB, async (req, res) => {
     const { session } = req;
     const cacheKey = `guilds:${session.user.id}`;
 
-    // 1) 嘗試從全域 cache（Redis 或記憶體）讀取
+    // First try to get cached value
     let allRaw = await cache.get(cacheKey);
     let all = allRaw ? JSON.parse(allRaw) : null;
 
-    // 2) 去重 / in-flight promise support (store in session)
+    // If no cache, try fetch; if fetch fails with 5xx/503 and cache exists, return stale and revalidate
     if (!all) {
-      if (req.session._guildsPromise) {
-        all = await req.session._guildsPromise;
-      } else {
-        req.session._guildsPromise = (async () => {
-          try {
-            const data = await discordFetch('/users/@me/guilds', session.user.accessToken);
-            await cache.set(cacheKey, JSON.stringify(data), Math.ceil(GUILDS_CACHE_TTL / 1000));
-            req.session._guildsCache = { ts: Date.now(), data };
-            return data;
-          } finally {
-            delete req.session._guildsPromise;
-          }
-        })();
-        all = await req.session._guildsPromise;
+      try {
+        all = await fetchUserGuildsWithCache(session);
+      } catch (err) {
+        // If we have stale cache, return it and trigger background refresh
+        const stale = await cache.get(cacheKey);
+        if (stale) {
+          console.warn('[guilds] user endpoint failed, returning stale cache and revalidating in background', { err: err.message ?? err });
+          // trigger background refresh (non-blocking)
+          (async () => {
+            try {
+              const fresh = await discordFetch('/users/@me/guilds', session.user.accessToken);
+              await cache.set(cacheKey, JSON.stringify(fresh), Math.ceil(GUILDS_CACHE_TTL / 1000));
+            } catch (e) {
+              console.error('[guilds][revalidate] failed', e);
+            }
+          })();
+
+          all = JSON.parse(stale);
+        } else {
+          // no stale cache -> rethrow to outer handler
+          throw err;
+        }
       }
     }
 
-    // 3) find guild
+    // find guild
     let guild = all.find((g) => g.id === guildId);
 
-    // 4) If not found in user guilds (or user endpoint failed), try bot-first member check
+    // if not found, try bot-first
     if (!guild) {
       const botMember = await checkGuildAdminWithBot(guildId, session.user.id);
       if (botMember) {
-        // construct minimal guild object from bot member info
         guild = { id: guildId, member: { [session.user.id]: botMember } };
       }
     }
 
     if (!guild) return res.status(404).json({ error: 'guild_not_found' });
-
-    // 5) permission check
     if (!isGuildAdmin(guild, session.user)) {
       return res.status(403).json({ error: 'not_admin' });
     }
