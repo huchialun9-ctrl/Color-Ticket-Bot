@@ -1,38 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api.js';
 
 const PAGES = [
-  { id: 'dashboard', label: '全域看板', path: '/dashboard', group: '首頁' },
-  { id: 'guilds', label: '伺服器管理', path: '/guilds', group: '管理' },
-  { id: 'plugins', label: '插件發佈中心', path: '/plugins', group: '開發' },
-  { id: 'webhooks', label: 'Webhook 測試', path: '/webhooks', group: '設定' },
-  { id: 'docs', label: '技術文件', path: '/docs', group: '文件' },
+  { id: 'dashboard', label: '全域看板 📊', path: '/dashboard', group: '首頁' },
+  { id: 'guilds', label: '伺服器管理 🤖', path: '/guilds', group: '管理' },
+  { id: 'plugins', label: '插件發佈中心 🧩', path: '/plugins', group: '開發' },
+  { id: 'webhooks', label: 'Webhook 測試 🔗', path: '/webhooks', group: '設定' },
+  { id: 'docs', label: '技術文件 📖', path: '/docs', group: '文件' },
+  { id: 'privacy', label: '隱私與 Cookies 政策 🔒', path: '/privacy', group: '政策' },
 ];
 
-/**
- * 全域搜尋與快速導航列（Global Command Palette）。
- * 快捷鍵：Ctrl+K / Cmd+K（由 App 監聽）。
- */
 export default function CommandPalette({ open, onClose }) {
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
+  const [guilds, setGuilds] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (open) {
+      api.guilds()
+        .then((d) => setGuilds(d.guilds || []))
+        .catch(() => {});
+      setQuery('');
+      setIndex(0);
+    }
+  }, [open]);
 
   if (!open) return null;
 
-  const results = PAGES.filter((p) => {
+  const serverItems = guilds.map((g) => ({
+    id: `guild-${g.id}`,
+    label: `管理：${g.name}`,
+    path: `/guilds/${g.id}`,
+    group: '伺服器',
+  }));
+
+  const allItems = [...PAGES, ...serverItems];
+
+  const results = allItems.filter((item) => {
     if (!query) return true;
-    return `${p.label}${p.group}${p.path}`.toLowerCase().includes(query.toLowerCase());
+    return `${item.label}${item.group}${item.path}`.toLowerCase().includes(query.toLowerCase());
   });
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setIndex((i) => Math.min(i + 1, results.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Escape') {
+      onClose();
+    } else if (e.key === 'Enter') {
+      if (results[index]) {
+        navigate(results[index].path);
+        onClose();
+      }
+    }
+  };
 
   return (
     <div className="palette-backdrop" onClick={onClose}>
       <div
         className="palette"
         onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') setIndex((i) => Math.min(i + 1, results.length - 1));
-          if (e.key === 'ArrowUp') setIndex((i) => Math.max(i - 1, 0));
-          if (e.key === 'Escape') onClose();
-        }}
+        onKeyDown={handleKeyDown}
       >
         <input
           autoFocus
@@ -41,21 +74,21 @@ export default function CommandPalette({ open, onClose }) {
             setQuery(e.target.value);
             setIndex(0);
           }}
-          placeholder="搜尋伺服器、票務或功能…"
+          placeholder="搜尋伺服器、說明文件或系統功能…"
           className="palette-input"
         />
         <div className="palette-results">
           {results.map((r, i) => (
-            <a
+            <Link
               key={r.id}
-              href={r.path}
+              to={r.path}
               className={`palette-item ${i === index ? 'active' : ''}`}
               onMouseEnter={() => setIndex(i)}
               onClick={onClose}
             >
               <span className="palette-group">{r.group}</span>
               <span>{r.label}</span>
-            </a>
+            </Link>
           ))}
           {results.length === 0 && <div className="palette-empty">沒有相符項目</div>}
         </div>
