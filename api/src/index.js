@@ -89,6 +89,7 @@ export async function start() {
   app.use('/api', ticketsRouter);
   app.use('/api', pluginsRouter);
   app.use('/api/webhooks', webhooksRouter);
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   // ---- 前端託管 ----
   const __dirname = dirname(fileURLToPath(import.meta.url));

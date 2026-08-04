@@ -60,6 +60,18 @@ export default function PluginCenter() {
     }
   };
 
+  const handleBannerUpload = async (id, file) => {
+    if (!guildId) return;
+    try {
+      const result = await api.uploadPluginBanner(guildId, id, file);
+      if (result.error) return alert(`橫幅上傳失敗：${result.error}`);
+      alert('橫幅上傳成功！');
+      await loadPlugins(guildId);
+    } catch (e) {
+      alert(`上傳失敗：${e.message}`);
+    }
+  };
+
   const buildForumPost = (p) => {
     const feat = features
       .split('\n')
@@ -127,18 +139,38 @@ export default function PluginCenter() {
         <h3>版本發佈狀態</h3>
         <table className="ticket-table">
           <thead>
-            <tr><th>名稱</th><th>版本</th><th>狀態</th><th>描述</th><th>動作</th></tr>
+            <tr><th>橫幅</th><th>名稱</th><th>版本</th><th>狀態</th><th>描述</th><th>動作</th></tr>
           </thead>
           <tbody>
             {plugins.map((p) => (
               <tr key={p._id}>
+                <td>
+                  {p.bannerUrl ? (
+                    <img
+                      src={p.bannerUrl}
+                      alt=""
+                      style={{ width: '60px', height: '34px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }}
+                    />
+                  ) : (
+                    <span className="muted" style={{ fontSize: '11px' }}>無橫幅</span>
+                  )}
+                </td>
                 <td><strong>{p.name}</strong></td>
                 <td>v{p.version}</td>
                 <td><span className={`badge badge-${p.status}`}>{p.status}</span></td>
                 <td className="muted">{p.description || '—'}</td>
                 <td>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button onClick={() => openCompose(p)}>生成論壇貼文</button>
+                    <label className="button-upload" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '8px 14px', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '14px', background: 'var(--card)', color: 'var(--fg)' }}>
+                      上傳橫幅
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => e.target.files[0] && handleBannerUpload(p._id, e.target.files[0])}
+                      />
+                    </label>
                     {p.status === 'pending' && (
                       <>
                         <button className="primary" onClick={() => handleStatusChange(p._id, 'approved')}>
@@ -154,7 +186,7 @@ export default function PluginCenter() {
               </tr>
             ))}
             {plugins.length === 0 && (
-              <tr><td colSpan={5} className="empty">尚未上傳插件</td></tr>
+              <tr><td colSpan={6} className="empty">尚未上傳插件</td></tr>
             )}
           </tbody>
         </table>

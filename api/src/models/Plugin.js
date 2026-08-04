@@ -16,6 +16,7 @@ const pluginSchema = new mongoose.Schema(
     },
     scanReport: { type: mongoose.Schema.Types.Mixed },
     forumPost: { type: String },
+    bannerUrl: { type: String },
     versionHistory: [{ type: mongoose.Schema.Types.Mixed }],
   },
   { timestamps: true },

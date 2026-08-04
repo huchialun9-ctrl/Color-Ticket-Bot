@@ -203,3 +203,43 @@ pluginsRouter.post('/guilds/:guildId/plugins/marketplace/install', async (req, r
     res.status(500).json({ error: 'failed_to_install_from_marketplace', detail: err.message });
   }
 });
+
+/** 上傳外掛橫幅圖片 */
+pluginsRouter.post('/guilds/:guildId/plugins/:id/banner', upload.single('banner'), async (req, res) => {
+  const { id, guildId } = req.params;
+  if (!req.file) return res.status(400).json({ error: '缺少圖片檔案' });
+
+  try {
+    const plugin = await Plugin.findOne({ _id: id, guildId });
+    if (!plugin) return res.status(404).json({ error: 'not_found' });
+
+    // 權限驗證
+    const all = await discordFetch('/users/@me/guilds', req.session.user.accessToken);
+    const guild = all.find((g) => g.id === guildId);
+    if (!isGuildAdmin(guild, req.session.user)) {
+      return res.status(403).json({ error: 'not_admin' });
+    }
+
+    // 將圖片保存到 uploads/banners/ 下
+    const fs = await import('node:fs/promises');
+    const bannersDir = join(process.cwd(), 'uploads', 'banners');
+    await fs.mkdir(bannersDir, { recursive: true });
+
+    // 重新命名或移動檔案
+    const ext = req.file.originalname.split('.').pop();
+    const filename = `${id}-${Date.now()}.${ext}`;
+    const destPath = join(bannersDir, filename);
+
+    await fs.rename(req.file.path, destPath);
+
+    // 儲存 URL
+    const relativeUrl = `/uploads/banners/${filename}`;
+    plugin.bannerUrl = relativeUrl;
+    await plugin.save();
+
+    res.json({ ok: true, bannerUrl: relativeUrl });
+  } catch (err) {
+    console.error('[api][plugins][banner] upload error', err);
+    res.status(500).json({ error: 'failed_to_upload_banner', detail: err.message });
+  }
+});

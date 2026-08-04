@@ -65,6 +65,15 @@ export const api = {
       body: form,
     }).then((r) => r.json());
   },
+  uploadPluginBanner: (guildId, id, file) => {
+    const form = new FormData();
+    form.append('banner', file);
+    return fetch(`${API}/guilds/${guildId}/plugins/${id}/banner`, {
+      method: 'POST',
+      credentials: 'include',
+      body: form,
+    }).then((r) => r.json());
+  },
   testWebhook: (payload) =>
     request('/webhooks/test', { method: 'POST', body: JSON.stringify(payload) }),
 };
