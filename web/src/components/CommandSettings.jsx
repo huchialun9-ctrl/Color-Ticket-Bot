@@ -19,6 +19,15 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
   const [raidThreshold, setRaidThreshold] = useState(10);
   const [saveSystemSuccess, setSaveSystemSuccess] = useState(false);
 
+  // 進階營運與門檻狀態
+  const [requireAvatar, setRequireAvatar] = useState(false);
+  const [minAccountAgeDays, setMinAccountAgeDays] = useState(0);
+  const [autoPublish, setAutoPublish] = useState(true);
+  const [reportChannelId, setReportChannelId] = useState('');
+  const [memberCountChannelId, setMemberCountChannelId] = useState('');
+  const [onlineCountChannelId, setOnlineCountChannelId] = useState('');
+  const [saveAdvancedSuccess, setSaveAdvancedSuccess] = useState(false);
+
   const loadWelcomeCard = async () => {
     try {
       const res = await api.fetchWelcomeCard(guildId);
@@ -40,9 +49,16 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
   useEffect(() => {
     if (settings) {
       setLogChannelId(settings.logChannelId || '');
+      setAutoPublish(settings.autoPublish ?? true);
+      setReportChannelId(settings.reportChannelId || '');
+      setMemberCountChannelId(settings.memberCountChannelId || '');
+      setOnlineCountChannelId(settings.onlineCountChannelId || '');
+      
       if (settings.automod) {
         setAutomodEnabled(settings.automod.enabled ?? true);
         setWarnThreshold(settings.automod.warnThreshold ?? 3);
+        setRequireAvatar(settings.automod.requireAvatar ?? false);
+        setMinAccountAgeDays(settings.automod.minAccountAgeDays ?? 0);
         if (settings.automod.raid) {
           setRaidThreshold(settings.automod.raid.threshold ?? 10);
         }
@@ -86,6 +102,25 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
       setTimeout(() => setSaveSystemSuccess(false), 2000);
     } catch (e) {
       alert(`儲存系統設定失敗：${e.message}`);
+    }
+  };
+
+  const handleSaveAdvanced = async () => {
+    try {
+      const payload = {
+        requireAvatar,
+        minAccountAgeDays: parseInt(minAccountAgeDays) || 0,
+        autoPublish,
+        reportChannelId: reportChannelId || null,
+        memberCountChannelId: memberCountChannelId || null,
+        onlineCountChannelId: onlineCountChannelId || null
+      };
+      const res = await api.saveSettings(guildId, payload);
+      onSettingsUpdate(res.settings);
+      setSaveAdvancedSuccess(true);
+      setTimeout(() => setSaveAdvancedSuccess(false), 2000);
+    } catch (e) {
+      alert(`儲存進階設定失敗：${e.message}`);
     }
   };
 
@@ -231,6 +266,100 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
         <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '20px' }}>
           <button className="primary" onClick={handleSaveWelcome}>
             <Icon name="check" size={15} /> {saveWelcomeSuccess ? '卡片設定已儲存！' : '儲存卡片設定'}
+          </button>
+        </div>
+      </section>
+
+      {/* 區塊三：進階營運與門檻設定 */}
+      <section style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '20px', borderRadius: '8px' }}>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <Icon name="webhook" size={16} /> 進階營運與門檻設定
+        </h3>
+        <p className="muted" style={{ marginBottom: '16px' }}>
+          設定入群門檻、匿名檢舉頻道與伺服器數據看板。
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            
+            <label style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '13px', fontWeight: '600' }}>
+              <input
+                type="checkbox"
+                checked={requireAvatar}
+                onChange={(e) => setRequireAvatar(e.target.checked)}
+              />
+              頭像缺失強制阻擋 (Anti-No-Avatar)
+            </label>
+
+            <label className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                最低帳號註冊天數 (防免洗帳號)
+                <InfoBadge text="新成員帳號註冊時間若低於此天數，將會被直接踢出。\n設定為 0 代表不限制。" />
+              </span>
+              <input
+                type="number"
+                min="0"
+                max="365"
+                value={minAccountAgeDays}
+                onChange={(e) => setMinAccountAgeDays(e.target.value)}
+              />
+            </label>
+
+            <label style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '13px', fontWeight: '600' }}>
+              <input
+                type="checkbox"
+                checked={autoPublish}
+                onChange={(e) => setAutoPublish(e.target.checked)}
+              />
+              自動發布公告頻道訊息 (Auto-Publish)
+            </label>
+
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            
+            <div className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                匿名檢舉接收頻道 (/report)
+              </span>
+              <ChannelSelect
+                value={reportChannelId}
+                onChange={setReportChannelId}
+                channels={channels}
+                placeholder="-- 選擇接收頻道 --"
+              />
+            </div>
+
+            <div className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                伺服器總人數看板 (語音頻道)
+              </span>
+              <ChannelSelect
+                value={memberCountChannelId}
+                onChange={setMemberCountChannelId}
+                channels={channels.filter(c => c.type === 2)} // Voice Channels only
+                placeholder="-- 選擇語音頻道 --"
+              />
+            </div>
+
+            <div className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                線上活躍人數看板 (語音頻道)
+              </span>
+              <ChannelSelect
+                value={onlineCountChannelId}
+                onChange={setOnlineCountChannelId}
+                channels={channels.filter(c => c.type === 2)}
+                placeholder="-- 選擇語音頻道 --"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '20px' }}>
+          <button className="primary" onClick={handleSaveAdvanced}>
+            <Icon name="check" size={15} /> {saveAdvancedSuccess ? '進階設定已儲存！' : '儲存進階設定'}
           </button>
         </div>
       </section>

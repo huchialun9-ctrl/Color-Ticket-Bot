@@ -252,6 +252,24 @@ apiRouter.put('/guilds/:guildId/settings', requireDB, async (req, res) => {
     if (patch.automodEnabled !== undefined) {
       update['automod.enabled'] = patch.automodEnabled === true || patch.automodEnabled === 'true';
     }
+    if (patch.requireAvatar !== undefined) {
+      update['automod.requireAvatar'] = patch.requireAvatar === true || patch.requireAvatar === 'true';
+    }
+    if (patch.minAccountAgeDays !== undefined) {
+      update['automod.minAccountAgeDays'] = Number(patch.minAccountAgeDays);
+    }
+    if (patch.autoPublish !== undefined) {
+      update.autoPublish = patch.autoPublish === true || patch.autoPublish === 'true';
+    }
+    if (patch.reportChannelId !== undefined) {
+      update.reportChannelId = patch.reportChannelId || null;
+    }
+    if (patch.memberCountChannelId !== undefined) {
+      update.memberCountChannelId = patch.memberCountChannelId || null;
+    }
+    if (patch.onlineCountChannelId !== undefined) {
+      update.onlineCountChannelId = patch.onlineCountChannelId || null;
+    }
 
     const updatedGuild = await Guild.findOneAndUpdate(
       { guildId },
