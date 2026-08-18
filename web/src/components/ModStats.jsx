@@ -1,14 +1,11 @@
 import React from 'react';
 import Icon from './Icon.jsx';
 
-// 模擬管理員績效數據
-const modData = [
-  { name: 'Admin_Allen', resolved: 145, rating: 4.8, warns: 12, bans: 3 },
-  { name: 'Mod_Bella', resolved: 89, rating: 4.9, warns: 5, bans: 1 },
-  { name: 'Helper_Carl', resolved: 210, rating: 4.5, warns: 45, bans: 8 },
-];
+export default function ModStats({ data = [] }) {
+  if (!data || data.length === 0) {
+    return <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '20px 0' }}>目前無足夠的管理員績效數據可供顯示</div>;
+  }
 
-export default function ModStats() {
   return (
     <div className="mod-stats-container">
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
@@ -21,7 +18,7 @@ export default function ModStats() {
           </tr>
         </thead>
         <tbody>
-          {modData.map((mod, idx) => (
+          {data.map((mod, idx) => (
             <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '12px 8px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Icon name="users" size={14} style={{ color: 'var(--accent)' }} />

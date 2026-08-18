@@ -217,7 +217,7 @@ export default function GlobalMetrics({ metrics, status }) {
             <p className="muted" style={{ marginBottom: '16px', fontSize: '13px' }}>
               分析成員在每週各時段的活躍程度，有助於安排活動與公告時間。
             </p>
-            <Heatmap />
+            <Heatmap data={metrics?.heatmap || []} />
           </div>
 
           <div className="card-block" style={{ padding: '24px' }}>
@@ -227,7 +227,7 @@ export default function GlobalMetrics({ metrics, status }) {
             <p className="muted" style={{ marginBottom: '16px', fontSize: '13px' }}>
               顯示活躍管理員處理客服單與執行裁罰的績效總覽。
             </p>
-            <ModStats />
+            <ModStats data={metrics?.modStats || []} />
           </div>
         </div>
       </section>

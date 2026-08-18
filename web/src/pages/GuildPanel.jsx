@@ -364,11 +364,11 @@ export default function GuildPanel({ guildId }) {
           <section className="grid-2col" style={{ marginTop: '24px' }}>
             <div className="card-block">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}><Icon name="chart" size={16} /> 發言尖峰時段熱力圖</h3>
-              <Heatmap />
+              <Heatmap data={stats?.heatmap || []} />
             </div>
             <div className="card-block">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}><Icon name="users" size={16} /> 管理員績效統計</h3>
-              <ModStats />
+              <ModStats data={stats?.modStats || []} />
             </div>
           </section>
 

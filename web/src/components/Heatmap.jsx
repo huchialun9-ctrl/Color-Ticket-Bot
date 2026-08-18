@@ -1,26 +1,6 @@
 import React from 'react';
 
-// 產生模擬的發言尖峰時段數據
-const generateHeatmapData = () => {
-  const data = [];
-  const days = ['日', '一', '二', '三', '四', '五', '六'];
-  for (let d = 0; d < 7; d++) {
-    for (let h = 0; h < 24; h++) {
-      // 模擬活躍度：晚上 18-23 點較高
-      const isPeak = h >= 18 && h <= 23;
-      const base = isPeak ? 50 : 5;
-      data.push({
-        day: days[d],
-        hour: h,
-        count: Math.floor(Math.random() * 50) + base
-      });
-    }
-  }
-  return data;
-};
-
-export default function Heatmap() {
-  const data = generateHeatmapData();
+export default function Heatmap({ data = [] }) {
   const days = ['日', '一', '二', '三', '四', '五', '六'];
 
   const getColor = (count) => {
@@ -46,7 +26,7 @@ export default function Heatmap() {
             {day}
           </div>
           {Array.from({ length: 24 }).map((_, hIdx) => {
-            const cell = data.find(item => item.day === day && item.hour === hIdx);
+            const cell = data.find(item => item.day === day && item.hour === hIdx) || { count: 0 };
             return (
               <div 
                 key={`${day}-${hIdx}`} 
