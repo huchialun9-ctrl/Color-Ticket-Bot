@@ -60,7 +60,7 @@ export default {
       let currentField = '';
       let fieldCount = 1;
 
-      for (const { member, reasons } from dangerousMembers) {
+      for (const { member, reasons } of dangerousMembers) {
         const entry = `• <@${member.id}> (${member.user.tag})\n  └ 權限: ${reasons.slice(0, 3).join(', ')}${reasons.length > 3 ? '...' : ''}\n`;
         if (currentField.length + entry.length > 1000) {
           embed.addFields({ name: `名單 (Part ${fieldCount++})`, value: currentField });
