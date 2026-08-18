@@ -26,7 +26,34 @@ export default {
         return; // 無論是否授權，機器人都跳過後續人類驗證流程
       }
 
-      // ---- 0. 新帳號快速封鎖 (Account Age Filter) ----
+      // ---- 0.1 頭像缺失強制阻擋 (Anti-No-Avatar) ----
+      const requireAvatar = settings.automod?.requireAvatar || false;
+      if (requireAvatar && !member.user.avatar) {
+        console.warn(`[gatekeeper] 無頭像攔截: ${member.user.tag}`);
+        await member.send('您好，因為伺服器啟用了安全防護機制，為防止幽靈假帳號，請您先設定 Discord 個人頭像後再嘗試加入！').catch(() => {});
+        await member.kick('胖達CHubbMan: 未設定個人頭像 (防假帳號)').catch(() => {});
+        await auditLog(member.guild, 'security_alert', {
+          member: member.user.tag,
+          action: 'no_avatar_block',
+          detail: '帳號未設定個人頭像，已被自動拒絕加入。',
+        });
+        return;
+      }
+
+      // ---- 0.2 機器人強迫改名 (Auto-Rename Bad Names) ----
+      // 假設預設禁止包含 "discord.gg" 或某些特殊字元的名字
+      const badNameRegex = /discord\.gg|twitter\.com|t\.me|admin|mod|system/i;
+      if (badNameRegex.test(member.user.username)) {
+        const safeName = `User-${Math.floor(Math.random() * 10000)}`;
+        await member.setNickname(safeName, '胖達CHubbMan: 暱稱不符合規範自動重置').catch(() => {});
+        await auditLog(member.guild, 'mod_action', {
+          action: 'auto_rename',
+          target: member.user.tag,
+          detail: `原暱稱 [${member.user.username}] 觸發違禁詞彙，已自動重新命名為 ${safeName}`,
+        });
+      }
+
+      // ---- 0.3 新帳號快速封鎖 (Account Age Filter) ----
       const minAgeDays = settings.automod?.minAccountAgeDays || 0;
       
       if (minAgeDays > 0) {

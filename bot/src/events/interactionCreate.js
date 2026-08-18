@@ -99,6 +99,12 @@ export default {
     }
 
     if (interaction.isModalSubmit()) {
+      if (interaction.customId === 'report_modal') {
+        const reportCommand = client.commands.get('report');
+        if (reportCommand && reportCommand.handleModal) {
+          return reportCommand.handleModal(interaction);
+        }
+      }
       return ticketManager.handleModal(interaction);
     }
 
