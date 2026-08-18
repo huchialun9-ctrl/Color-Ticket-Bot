@@ -89,7 +89,7 @@ export default {
             { name: '`/blindbox [action]`', value: '• `view`：檢視盲盒獎項與中獎率\n• `draw`：消耗代幣抽取盲盒，可能獲得限定身份組。' },
             { name: '`/predict [action]`', value: '• `create`：發起預測\n• `bet`：押注代幣\n• `resolve`：結算預測並分紅彩池。' },
             { name: '`/profile [user]`', value: '查看自己或他人的活躍等級 (Level)、經驗值 (XP)、代幣餘額與解鎖成就。' },
-            { name: '`/pet [action]`', value: '虛擬電子雞寵物系統。可查看狀態 (`status`)、消耗代幣餵食 (`feed`) 或改名 (`rename`)。' },
+            { name: '`/pet [action]`', value: '虛擬電子雞寵物系統。可查看狀態 (`status`)、消耗代幣餵食 (`feed`)、陪玩 (`play`) 或改名 (`rename`)。' },
             { name: '`/fortune`', value: '抽取今日運勢占卜，獲得今日隨機點評與建議。' },
             { name: '`/trivia`', value: '發起益智搶答。第一個在限時內回答正確者，可獲得代幣獎勵！' },
             { name: '`/birthday <MM-DD>`', value: '設定個人生日，讓伺服器夥伴在特別的日子祝賀您。' }
