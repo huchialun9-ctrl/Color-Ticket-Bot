@@ -1,0 +1,9 @@
+{
+  "name": "afk-system",
+  "version": "1.0.0",
+  "description": "暫離系統：輸入 !afk 標記暫離，被標記時自動回覆",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["SendMessages", "ReadMessageHistory"]
+}

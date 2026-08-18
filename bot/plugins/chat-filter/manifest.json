@@ -1,0 +1,9 @@
+{
+  "name": "chat-filter",
+  "version": "1.0.0",
+  "description": "髒話與不雅字眼過濾器 (基礎示範)",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["ManageMessages", "SendMessages"]
+}
