@@ -74,4 +74,43 @@ export function startScheduler(client) {
       console.error('[scheduler] 臨時身分組檢查失敗', e.message);
     }
   }, 60000);
+
+  // 生日檢查排程 (每 1 小時檢查一次)
+  setInterval(async () => {
+    if (!isDBReady()) return;
+    try {
+      const { UserEconomy } = await import('../../../api/src/models/UserEconomy.js');
+      const now = new Date();
+      // 轉換成 MM-DD 格式
+      const todayStr = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const year = now.getFullYear();
+
+      // 找出今天生日且今年尚未慶祝的成員
+      const bdays = await UserEconomy.find({
+        birthday: todayStr,
+        lastBirthdayYear: { $ne: year }
+      });
+
+      for (const record of bdays) {
+        try {
+          const guild = client.guilds.cache.get(record.guildId);
+          if (guild) {
+            // 發放生日禮金 500 代幣
+            record.balance += 500;
+            record.lastBirthdayYear = year;
+            await record.save();
+
+            const channel = guild.systemChannel || guild.channels.cache.find(c => c.isTextBased());
+            if (channel) {
+              channel.send(`🎉 祝 <@${record.userId}> 生日快樂！🎂\n系統已經自動為您送上 **500** 慶生代幣大紅包！祝您有美好的一天！`).catch(() => {});
+            }
+          }
+        } catch (e) {
+          console.error('[scheduler] 生日發送失敗', e.message);
+        }
+      }
+    } catch (e) {
+      console.error('[scheduler] 生日檢查錯誤', e.message);
+    }
+  }, 3600000); // 每小時
 }

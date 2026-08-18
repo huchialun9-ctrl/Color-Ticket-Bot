@@ -7,6 +7,7 @@ const userEconomySchema = new mongoose.Schema(
     balance: { type: Number, default: 0 },
     lastCheckIn: { type: Date },
     birthday: { type: String }, // e.g. "12-25"
+    lastBirthdayYear: { type: Number },
     petName: { type: String, default: '小精靈' },
     petLevel: { type: Number, default: 1 },
     petXP: { type: Number, default: 0 },
