@@ -559,7 +559,7 @@ apiRouter.post('/guilds/:guildId/roles/panels', async (req, res) => {
       color: 0x5865f2
     };
 
-    const botToken = config.discordBotToken;
+    const botToken = process.env.DISCORD_BOT_TOKEN || process.env.BOT_TOKEN;
     await discordFetch(`/channels/${channelId}/messages`, botToken, {
       method: 'POST',
       body: JSON.stringify({
