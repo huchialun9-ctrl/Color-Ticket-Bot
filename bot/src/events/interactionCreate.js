@@ -95,10 +95,66 @@ export default {
         }
       }
 
+      // ---- 動態語音頻道控制面板 ----
+      if (customId.startsWith('vc_')) {
+        const { TempVoice } = await import('../../../api/src/models/TempVoice.js');
+        const channel = interaction.channel;
+        const voiceState = interaction.member.voice;
+
+        if (!voiceState.channelId || voiceState.channelId !== channel.id) {
+          return interaction.reply({ content: '❌ 您必須在該語音頻道內才能使用控制面板！', ephemeral: true });
+        }
+
+        const record = await TempVoice.findOne({ channelId: channel.id });
+        if (!record || record.creatorId !== interaction.user.id) {
+          return interaction.reply({ content: '❌ 只有此頻道的房主可以執行這個操作！', ephemeral: true });
+        }
+
+        if (customId === 'vc_lock') {
+          await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { Connect: false });
+          return interaction.reply({ content: '🔒 已將您的頻道鎖定，其他人無法再加入！', ephemeral: true });
+        }
+        if (customId === 'vc_unlock') {
+          await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { Connect: null });
+          return interaction.reply({ content: '🔓 已解除頻道鎖定，所有人皆可加入！', ephemeral: true });
+        }
+        if (customId === 'vc_hide') {
+          await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { ViewChannel: false });
+          return interaction.reply({ content: '👁️ 已隱藏您的頻道！', ephemeral: true });
+        }
+        if (customId === 'vc_rename') {
+          const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
+          const modal = new ModalBuilder()
+            .setCustomId('vc_rename_modal')
+            .setTitle('重新命名您的語音頻道');
+          
+          const input = new TextInputBuilder()
+            .setCustomId('vc_new_name')
+            .setLabel('新頻道名稱')
+            .setStyle(TextInputStyle.Short)
+            .setValue(channel.name)
+            .setMaxLength(30)
+            .setRequired(true);
+
+          modal.addComponents(new ActionRowBuilder().addComponents(input));
+          return interaction.showModal(modal);
+        }
+      }
+
       return ticketManager.handleButton(interaction);
     }
 
     if (interaction.isModalSubmit()) {
+      if (interaction.customId === 'vc_rename_modal') {
+        const newName = interaction.fields.getTextInputValue('vc_new_name');
+        try {
+          await interaction.channel.setName(newName);
+          return interaction.reply({ content: `✅ 已將頻道名稱更改為：**${newName}**`, ephemeral: true });
+        } catch (e) {
+          return interaction.reply({ content: '❌ 更改名稱失敗，可能遭遇到 Discord API 速率限制（5分鐘只能改2次名稱）。', ephemeral: true });
+        }
+      }
+
       if (interaction.customId === 'report_modal') {
         const reportCommand = client.commands.get('report');
         if (reportCommand && reportCommand.handleModal) {

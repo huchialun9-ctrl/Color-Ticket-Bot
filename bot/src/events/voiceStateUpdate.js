@@ -87,6 +87,8 @@ export default {
             channelId: newChannel.id,
             creatorId: member.id,
           });
+          
+          await sendVoiceControlPanel(newChannel, member);
         } catch (err) {
           console.error('[voiceStateUpdate][dynamic-voice] 建立頻道失敗', err.message);
         }
@@ -127,6 +129,7 @@ export default {
             channelId: newChannel.id,
             creatorId: member.id,
           });
+          await sendVoiceControlPanel(newChannel, member);
         } catch (err) {
           console.error('[voiceStateUpdate][dynamic-voice] 建立頻道失敗', err.message);
         }
@@ -134,6 +137,29 @@ export default {
     }
   },
 };
+
+/** 發送互動式語音控制面板 */
+async function sendVoiceControlPanel(channel, member) {
+  try {
+    const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+    const embed = new EmbedBuilder()
+      .setColor(0x3498db)
+      .setTitle('🎛️ 您的專屬語音房已建立')
+      .setDescription(`歡迎，${member}！您是此頻道的房主。\n請點擊下方按鈕即可**免打指令**管理您的私人包廂：`)
+      .setFooter({ text: '頻道無人時將自動銷毀' });
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('vc_lock').setLabel('🔒 鎖定頻道').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('vc_unlock').setLabel('🔓 解鎖頻道').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId('vc_hide').setLabel('👁️ 隱藏頻道').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId('vc_rename').setLabel('✏️ 重新命名').setStyle(ButtonStyle.Primary)
+    );
+
+    await channel.send({ content: `${member}`, embeds: [embed], components: [row] }).catch(() => {});
+  } catch (err) {
+    console.error('[voiceStateUpdate] sendVoiceControlPanel error', err.message);
+  }
+}
 
 /** 檢查並清理無人的臨時語音頻道 */
 async function checkAndCleanTempChannel(guild, channel) {
