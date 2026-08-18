@@ -175,20 +175,10 @@ export default {
         const targets = allGuilds.filter(g => g.guildId !== message.guild.id);
         
         if (targets.length > 0) {
-          const embed = new EmbedBuilder()
-            .setColor(0x00BFFF)
-            .setAuthor({ 
-              name: `${message.author.tag}`, 
-              iconURL: message.author.displayAvatarURL({ dynamic: true }) 
-            })
-            .setDescription(message.content || '*[附件]*')
-            .setFooter({ text: `🌐 跨群廣播 • 來自 ${message.guild.name}` })
-            .setTimestamp();
-
-          const attachment = message.attachments.first();
-          if (attachment && attachment.contentType?.startsWith('image/')) {
-            embed.setImage(attachment.url);
-          }
+          const files = message.attachments.map(a => a.url);
+          const hasContent = message.content && message.content.length > 0;
+          
+          if (!hasContent && files.length === 0) return;
 
           targets.forEach(async (tg) => {
             try {
@@ -197,7 +187,25 @@ export default {
               const targetChannel = targetGuild.channels.cache.get(tg.globalChatChannelId);
               if (!targetChannel || !targetChannel.isTextBased()) return;
 
-              await targetChannel.send({ embeds: [embed] }).catch(() => {});
+              // 尋找或建立該頻道的專屬 Webhook
+              const webhooks = await targetChannel.fetchWebhooks();
+              let webhook = webhooks.find(wh => wh.owner.id === client.user.id);
+              
+              if (!webhook) {
+                webhook = await targetChannel.createWebhook({
+                  name: 'Global Chat Bridge',
+                  avatar: client.user.displayAvatarURL(),
+                }).catch(() => null);
+              }
+
+              if (webhook) {
+                await webhook.send({
+                  content: hasContent ? message.content : undefined,
+                  username: `${message.author.username} [${message.guild.name}]`,
+                  avatarURL: message.author.displayAvatarURL({ dynamic: true }),
+                  files: files.length > 0 ? files : undefined,
+                }).catch(() => {});
+              }
             } catch (e) {
                // ignore
             }
