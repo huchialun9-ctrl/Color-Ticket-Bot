@@ -7,10 +7,10 @@ const COMMANDS = [
     icon: 'puzzle',
     items: [
       { name: '/daily', desc: '每日簽到領取隨機金幣與經驗值。', usage: '/daily' },
-      { name: '/blindbox', desc: '購買並開啟驚喜盲盒，有機會獲得稀有獎勵！', usage: '/blindbox' },
+      { name: '/blindbox', desc: '購買並開啟驚喜盲盒，有機會獲得稀有獎勵！管理員可新增/移除。', usage: '/blindbox [action]' },
       { name: '/fortune', desc: '抽取每日運勢籤，看看今天的運氣如何。', usage: '/fortune' },
-      { name: '/pet', desc: '領養、餵食並與你的專屬電子寵物互動。', usage: '/pet [action]' },
-      { name: '/trivia', desc: '參加隨機問答遊戲，答對可獲得獎勵。', usage: '/trivia' },
+      { name: '/pet', desc: '領養、餵食、陪玩並與你的專屬電子寵物互動。', usage: '/pet [status|feed|play|rename]' },
+      { name: '/trivia', desc: '參加隨機問答遊戲，最快答對可獲得代幣獎勵。', usage: '/trivia' },
     ]
   },
   {
@@ -18,29 +18,38 @@ const COMMANDS = [
     icon: 'users',
     items: [
       { name: '/profile', desc: '查看你的個人檔案、等級、經驗值與錢包餘額。', usage: '/profile [@user]' },
-      { name: '/birthday', desc: '設定你的生日，系統會在當天給予特別驚喜。', usage: '/birthday set [MM/DD]' },
-      { name: '/poll', desc: '快速建立社群投票，支援多個選項。', usage: '/poll [question] [opts...]' },
-      { name: '/predict', desc: '參與社群預測活動，下注贏得獎金。', usage: '/predict' },
+      { name: '/birthday', desc: '設定你的生日，系統會在當天給予特別驚喜與代幣。', usage: '/birthday [MM-DD]' },
+      { name: '/poll', desc: '快速建立社群投票，支援最多 10 個選項。', usage: '/poll [question] [options]' },
+      { name: '/predict', desc: '參與社群預測活動下注贏得獎金。管理員可發起與結算派彩。', usage: '/predict [list|bet|create|resolve]' },
+      { name: '/team', desc: '一鍵打散並隨機分組語音頻道內的成員。', usage: '/team [語音頻道] [隊伍數量]' },
     ]
   },
   {
-    category: '客服與工具',
+    category: '客服與實用工具',
     icon: 'ticket',
     items: [
-      { name: '/ticket', desc: '手動開啟一個新的私密客服工單。', usage: '/ticket' },
-      { name: '/voicecreator', desc: '動態語音控制（鎖定、解鎖、踢出成員）。', usage: '/voicecreator [action]' },
+      { name: '/ticket', desc: '客服單系統。建立面板、新增內部備忘錄、評分與結算。', usage: '/ticket [panel|close|rating|memo]' },
+      { name: '/voicecreator', desc: '設定動態語音 (Join to Create) 母頻道。', usage: '/voicecreator [set|disable]' },
+      { name: '/giveaway', desc: '發起限時抽獎活動，自動抽出幸運兒。', usage: '/giveaway [prize] [duration] [winners]' },
+      { name: '/countdown', desc: '設定一個全球倒數計時板。', usage: '/countdown [name] [timestamp]' },
+      { name: '/report', desc: '向管理員發送匿名檢舉或回報。', usage: '/report' },
       { name: '/help', desc: '獲取機器人的完整說明與求助選單。', usage: '/help' },
     ]
   },
   {
-    category: '安全與管理',
+    category: '安全與進階管理',
     icon: 'shield',
     items: [
+      { name: '/ban', desc: '封鎖並從伺服器移除違規成員。', usage: '/ban [@user] [reason]' },
+      { name: '/kick', desc: '踢出違規成員。', usage: '/kick [@user] [reason]' },
+      { name: '/temprole', desc: '發放限時身份組，時間到自動回收。', usage: '/temprole [@user] [@role] [minutes]' },
       { name: '/warn', desc: '警告違規成員，累積達到閾值將自動禁言。', usage: '/warn [@user] [reason]' },
+      { name: '/prune', desc: '根據不活躍天數與條件踢除幽靈人口。', usage: '/prune [days] [has_role]' },
       { name: '/purge', desc: '大量清理頻道內的近期訊息。', usage: '/purge [amount]' },
       { name: '/lockdown', desc: '緊急鎖定或解鎖當前頻道。', usage: '/lockdown' },
-      { name: '/automod', desc: '快速切換或查詢自動防護系統狀態。', usage: '/automod' },
-      { name: '/logchannel', desc: '設定全域日誌的發送頻道。', usage: '/logchannel [#channel]' },
+      { name: '/export_bans', desc: '將目前所有黑名單匯出成 CSV 檔案。', usage: '/export_bans' },
+      { name: '/health', desc: '為伺服器進行資安與防爆破健康檢查評分。', usage: '/health' },
+      { name: '/plugin', desc: '管理外掛程式。', usage: '/plugin [list|load|unload]' },
     ]
   }
 ];
