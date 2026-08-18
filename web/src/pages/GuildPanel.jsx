@@ -16,6 +16,8 @@ import WorkflowEngine from '../components/WorkflowEngine.jsx';
 import UtilityHelpers from '../components/UtilityHelpers.jsx';
 import EconomyManager from '../components/EconomyManager.jsx';
 import CommandSettings from '../components/CommandSettings.jsx';
+import Heatmap from '../components/Heatmap.jsx';
+import ModStats from '../components/ModStats.jsx';
 
 /**
  * 伺服器控制台：整合表單、自動回覆、身分組、預約公告、等級排行與日誌數據。
@@ -355,7 +357,18 @@ export default function GuildPanel({ guildId }) {
                         </li>
                       ))}
                     </ul>
-              )}
+                  )}
+            </div>
+          </section>
+
+          <section className="grid-2col" style={{ marginTop: '24px' }}>
+            <div className="card-block">
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}><Icon name="chart" size={16} /> 發言尖峰時段熱力圖</h3>
+              <Heatmap />
+            </div>
+            <div className="card-block">
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}><Icon name="users" size={16} /> 管理員績效統計</h3>
+              <ModStats />
             </div>
           </section>
 
