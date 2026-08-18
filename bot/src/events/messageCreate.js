@@ -180,6 +180,21 @@ export default {
           
           if (!hasContent && files.length === 0) return;
 
+          let replyContent = '';
+          if (message.reference && message.reference.messageId) {
+            try {
+              const refMsg = await message.channel.messages.fetch(message.reference.messageId).catch(()=>null);
+              if (refMsg) {
+                let snippet = refMsg.content || '[圖片/附件]';
+                snippet = snippet.replace(/\n/g, ' ');
+                if (snippet.length > 40) snippet = snippet.substring(0, 40) + '...';
+                replyContent = `> ↩️ **回覆 ${refMsg.author.username}**: *${snippet}*\n\n`;
+              }
+            } catch (e) {}
+          }
+
+          const finalContent = hasContent ? `${replyContent}${message.content}` : (replyContent ? replyContent : undefined);
+
           targets.forEach(async (tg) => {
             try {
               const targetGuild = client.guilds.cache.get(tg.guildId);
@@ -222,11 +237,12 @@ export default {
                 }
 
                 await webhook.send({
-                  content: hasContent ? message.content : undefined,
+                  content: finalContent,
                   username: `${message.author.username} [${message.guild.name}]`,
                   avatarURL: message.author.displayAvatarURL({ dynamic: true }),
                   files: files.length > 0 ? files : undefined,
-                  components: [row]
+                  components: [row],
+                  allowedMentions: { parse: ['users'] } // 關閉 @everyone 和 @role 避免跨群大騷擾
                 }).catch(() => {});
               }
             } catch (e) {
