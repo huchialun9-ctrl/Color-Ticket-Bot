@@ -14,6 +14,17 @@ export default {
     if (message.author.bot) return;
     if (!message.guild) return;
 
+    // ---- 0.1 跨頻道公告同步鏡像 (Auto Publish) ----
+    if (message.channel.type === ChannelType.GuildAnnouncement) {
+      const settings = await getSettings(message.guild.id);
+      if (settings.autoPublish !== false) {
+        // 延遲一點點，確保 webhook 或其他操作完成
+        setTimeout(() => {
+          message.crosspost().catch(() => {});
+        }, 2000);
+      }
+    }
+
     // ---- 0. PII 敏感字詞與個資過濾 (Deep Sanitizer) ----
     const piiVerdict = checkPII(message.content);
     if (piiVerdict.hasPII) {

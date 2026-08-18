@@ -1,5 +1,5 @@
 import { ScheduledMessage } from '../../../api/src/models/ScheduledMessage.js';
-import { isDBReady } from '../db.js';
+import { isDBReady, db } from '../db.js';
 
 export function startScheduler(client) {
   console.log('[scheduler] 預約排程公告檢查線程已啟動');
@@ -45,8 +45,33 @@ export function startScheduler(client) {
           await msg.save();
         }
       }
+
     } catch (e) {
-      console.error('[scheduler] 排程檢查失敗', e.message);
+      console.error('[scheduler] 排程訊息檢查失敗', e.message);
+    }
+
+    try {
+      const tempRoles = db.collection('temproles');
+      const now = new Date();
+      const expiredRoles = await tempRoles.find({ expiresAt: { $lte: now } }).toArray();
+
+      for (const record of expiredRoles) {
+        try {
+          const guild = client.guilds.cache.get(record.guildId);
+          if (guild) {
+            const member = await guild.members.fetch(record.userId).catch(() => null);
+            if (member && member.roles.cache.has(record.roleId)) {
+              await member.roles.remove(record.roleId).catch(() => {});
+              console.log(`[scheduler] 已自動回收 ${member.user.tag} 的臨時身分組 (${record.roleId})`);
+            }
+          }
+          await tempRoles.deleteOne({ _id: record._id });
+        } catch (err) {
+          console.error(`[scheduler] 回收身分組失敗 (${record._id})`, err.message);
+        }
+      }
+    } catch (e) {
+      console.error('[scheduler] 臨時身分組檢查失敗', e.message);
     }
   }, 60000);
 }
