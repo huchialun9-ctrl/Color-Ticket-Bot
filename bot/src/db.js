@@ -20,3 +20,5 @@ export async function connectDB() {
 export function isDBReady() {
   return connected;
 }
+
+export const db = mongoose.connection;
