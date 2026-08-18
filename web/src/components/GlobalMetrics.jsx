@@ -5,6 +5,8 @@ import Icon from './Icon.jsx';
 import { useTheme } from '../theme.jsx';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import Heatmap from './Heatmap.jsx';
+import ModStats from './ModStats.jsx';
 
 const CARD_DEFS = [
   { key: 'guildCount', label: '總伺服器加入數', accent: '#5865F2', icon: 'server' },
@@ -203,6 +205,29 @@ export default function GlobalMetrics({ metrics, status }) {
               </span>
               <strong style={{ fontSize: '20px' }}><CountUp value={metrics?.ticketsTotal ?? 0} /></strong>
             </div>
+          </div>
+        </div>
+
+        {/* 新增的視覺化圖表與績效面板 */}
+        <div className="grid-2col" style={{ gap: '20px', marginTop: '24px' }}>
+          <div className="card-block" style={{ padding: '24px' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+              <Icon name="chart" size={16} /> 伺服器尖峰時段熱力圖
+            </h3>
+            <p className="muted" style={{ marginBottom: '16px', fontSize: '13px' }}>
+              分析成員在每週各時段的活躍程度，有助於安排活動與公告時間。
+            </p>
+            <Heatmap />
+          </div>
+
+          <div className="card-block" style={{ padding: '24px' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+              <Icon name="users" size={16} /> 全域管理員績效排名
+            </h3>
+            <p className="muted" style={{ marginBottom: '16px', fontSize: '13px' }}>
+              顯示活躍管理員處理客服單與執行裁罰的績效總覽。
+            </p>
+            <ModStats />
           </div>
         </div>
       </section>
