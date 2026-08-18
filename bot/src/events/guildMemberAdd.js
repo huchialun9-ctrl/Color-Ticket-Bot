@@ -7,7 +7,47 @@ import { trackUsedInvite } from '../modules/invites/inviteCache.js';
 export default {
   name: Events.GuildMemberAdd,
   async execute(client, member) {
-    if (member.user.bot) return;
+    try {
+      const { getSettings } = await import('../modules/settings.js');
+      const settings = await getSettings(member.guild.id);
+
+      // ---- -1. 機器人白名單管控 ----
+      if (member.user.bot) {
+        const whitelist = settings.automod?.botWhitelist || [];
+        if (!whitelist.includes(member.id)) {
+          console.warn(`[gatekeeper] 未授權機器人嘗試加入: ${member.user.tag}`);
+          await member.kick('胖達CHubbMan: 機器人白名單管控 (未授權機器人自動踢除)').catch(() => {});
+          await auditLog(member.guild, 'security_alert', {
+            member: member.user.tag,
+            action: 'bot_whitelist_block',
+            detail: '未授權的機器人嘗試加入伺服器，已自動踢除。',
+          });
+        }
+        return; // 無論是否授權，機器人都跳過後續人類驗證流程
+      }
+
+      // ---- 0. 新帳號快速封鎖 (Account Age Filter) ----
+      const minAgeDays = settings.automod?.minAccountAgeDays || 0;
+      
+      if (minAgeDays > 0) {
+        const accountAgeMs = Date.now() - member.user.createdTimestamp;
+        const requiredMs = minAgeDays * 24 * 60 * 60 * 1000;
+        
+        if (accountAgeMs < requiredMs) {
+          console.warn(`[gatekeeper] 新帳號攔截: ${member.user.tag} 註冊時間過短`);
+          await member.send(`您好，因為伺服器啟用了安全防護機制，您的 Discord 帳號註冊時間必須大於 ${minAgeDays} 天才能加入此伺服器。請稍後再來！`).catch(() => {});
+          await member.kick('胖達CHubbMan: 帳號註冊時間未達門檻 (Anti-Raid)').catch(() => {});
+          await auditLog(member.guild, 'security_alert', {
+            member: member.user.tag,
+            action: 'new_account_block',
+            detail: `帳號建立未滿 ${minAgeDays} 天被自動拒絕加入`,
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('[guildMemberAdd][accountAge] check error', err.message);
+    }
 
     // ---- 1. 跨伺服器黑名單全域共享網絡比對 ----
     try {

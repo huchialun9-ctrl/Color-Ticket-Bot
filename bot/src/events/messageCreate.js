@@ -34,7 +34,11 @@ export default {
 
     // ---- 1. Token Bucket 防洗版 ----
     if (settings.automod?.enabled !== false) {
-      const verdict = tokenBucket.check(message.guild.id, message.author.id, message, settings.automod);
+      const whitelist = settings.automod?.whitelist || [];
+      const inWhitelist = whitelist.includes(message.channel.id) || message.member.roles.cache.some(role => whitelist.includes(role.id));
+      
+      if (!inWhitelist) {
+        const verdict = tokenBucket.check(message.guild.id, message.author.id, message, settings.automod);
       if (verdict.blocked) {
         await message.delete().catch(() => {});
         await message.member
@@ -52,6 +56,7 @@ export default {
           )
           .catch(() => {});
         return;
+      }
       }
     }
 

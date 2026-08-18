@@ -12,6 +12,22 @@ export default {
     const addedRoles = newMember.roles.cache.filter((role) => !oldMember.roles.cache.has(role.id));
     if (addedRoles.size === 0) return;
 
+    // 身分組異動即時警報：當有人被私自賦予高權限身分組時立刻發送警告
+    const dangerousPermissions = [
+      'Administrator', 'ManageGuild', 'ManageRoles', 'ManageChannels', 'ManageWebhooks', 'KickMembers', 'BanMembers'
+    ];
+    for (const role of addedRoles.values()) {
+      const hasDanger = dangerousPermissions.some(p => role.permissions.has(p));
+      if (hasDanger) {
+        await auditLog(newMember.guild, 'security_alert', {
+          member: newMember.user.tag,
+          action: 'dangerous_role_assigned',
+          detail: `成員被賦予了高權限身分組 [${role.name}]，請確認此操作是否經過授權！`
+        });
+        // 也可以考慮發送警報到特定的管理員頻道
+      }
+    }
+
     try {
       // 獲取該伺服器的所有身分組互斥鎖規則
       const rules = await RoleExclusion.find({ guildId: newMember.guild.id });

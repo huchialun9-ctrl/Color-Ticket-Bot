@@ -11,6 +11,9 @@ const guildSchema = new mongoose.Schema(
       enabled: { type: Boolean, default: true },
       tokenCapacity: { type: Number, default: 8 },
       warnThreshold: { type: Number, default: 3 },
+      minAccountAgeDays: { type: Number, default: 0 },
+      botWhitelist: { type: [String], default: [] },
+      whitelist: { type: [String], default: [] }, // Channel/Role ID whitelist
       raid: {
         windowMs: { type: Number, default: 60000 },
         threshold: { type: Number, default: 10 },
