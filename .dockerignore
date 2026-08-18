@@ -1,0 +1,25 @@
+# Build context 排除項
+.git
+.gitignore
+node_modules
+**/node_modules
+web/dist
+dist
+build
+coverage
+
+# 機密一律不入鏡像
+.env
+.env.*
+!.env.example
+
+# 執行期產物
+logs
+*.log
+api/uploads
+api/scans
+data
+
+# 系統
+.DS_Store
+Thumbs.db
