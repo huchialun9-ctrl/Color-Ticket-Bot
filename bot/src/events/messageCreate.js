@@ -1,4 +1,4 @@
-import { Events, ChannelType, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
+import { Events, ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { getSettings } from '../modules/settings.js';
 import { tokenBucket } from '../modules/automod/tokenBucket.js';
 import { auditLog } from '../modules/automod/auditLog.js';
@@ -199,11 +199,34 @@ export default {
               }
 
               if (webhook) {
+                let inviteUrl = null;
+                try {
+                  const inv = await message.channel.createInvite({ maxAge: 86400, maxUses: 0 }).catch(()=>null);
+                  if (inv) inviteUrl = inv.url;
+                } catch(e) {}
+
+                const row = new ActionRowBuilder().addComponents(
+                  new ButtonBuilder()
+                    .setLabel('🔗 跳轉至真實對話')
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(message.url)
+                );
+
+                if (inviteUrl) {
+                  row.addComponents(
+                    new ButtonBuilder()
+                      .setLabel(`🚪 進入 ${message.guild.name}`)
+                      .setStyle(ButtonStyle.Link)
+                      .setURL(inviteUrl)
+                  );
+                }
+
                 await webhook.send({
                   content: hasContent ? message.content : undefined,
                   username: `${message.author.username} [${message.guild.name}]`,
                   avatarURL: message.author.displayAvatarURL({ dynamic: true }),
                   files: files.length > 0 ? files : undefined,
+                  components: [row]
                 }).catch(() => {});
               }
             } catch (e) {
