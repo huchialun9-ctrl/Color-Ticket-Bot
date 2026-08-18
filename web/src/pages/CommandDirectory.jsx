@@ -23,6 +23,7 @@ const COMMANDS = [
       { name: '/predict', desc: '參與社群預測活動下注贏得獎金。管理員可發起與結算派彩。', usage: '/predict [list|bet|create|resolve]' },
       { name: '/team', desc: '一鍵打散並隨機分組語音頻道內的成員。', usage: '/team [語音頻道] [隊伍數量]' },
       { name: '/globalchat', desc: '設定跨群聊天頻道，與全網其他伺服器的成員即時交流！', usage: '/globalchat [set|disable]' },
+      { name: '/global', desc: '🌐 跨群網路專屬指令：查看全網連線規模，以及任何玩家的跨群通行證！', usage: '/global [stats|profile]' },
     ]
   },
   {
