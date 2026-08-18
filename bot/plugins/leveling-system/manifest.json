@@ -1,0 +1,9 @@
+{
+  "name": "leveling-system",
+  "version": "1.0.0",
+  "description": "文字經驗值系統：發言自動累積經驗值並提示升級",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["SendMessages", "ReadMessageHistory"]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "auto-thread",
+  "version": "1.0.0",
+  "description": "自動開串機：指定頻道有新訊息時，自動建立討論串",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["CreatePublicThreads"]
+}

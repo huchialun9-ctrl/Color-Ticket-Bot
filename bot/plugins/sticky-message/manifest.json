@@ -1,0 +1,9 @@
+{
+  "name": "sticky-message",
+  "version": "1.0.0",
+  "description": "置底訊息：自動保持一段特定文字在聊天頻道的最底端",
+  "author": "chubbman",
+  "main": "index.js",
+  "runtime": "discord.js",
+  "permissions": ["ManageMessages", "SendMessages"]
+}
