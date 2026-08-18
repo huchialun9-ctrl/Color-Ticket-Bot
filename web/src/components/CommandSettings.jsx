@@ -26,6 +26,8 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
   const [reportChannelId, setReportChannelId] = useState('');
   const [memberCountChannelId, setMemberCountChannelId] = useState('');
   const [onlineCountChannelId, setOnlineCountChannelId] = useState('');
+  const [globalChatChannelId, setGlobalChatChannelId] = useState('');
+  const [voiceCreatorChannelId, setVoiceCreatorChannelId] = useState('');
   const [saveAdvancedSuccess, setSaveAdvancedSuccess] = useState(false);
 
   const loadWelcomeCard = async () => {
@@ -53,6 +55,8 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
       setReportChannelId(settings.reportChannelId || '');
       setMemberCountChannelId(settings.memberCountChannelId || '');
       setOnlineCountChannelId(settings.onlineCountChannelId || '');
+      setGlobalChatChannelId(settings.globalChatChannelId || '');
+      setVoiceCreatorChannelId(settings.voiceCreatorChannelId || '');
       
       if (settings.automod) {
         setAutomodEnabled(settings.automod.enabled ?? true);
@@ -113,7 +117,9 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
         autoPublish,
         reportChannelId: reportChannelId || null,
         memberCountChannelId: memberCountChannelId || null,
-        onlineCountChannelId: onlineCountChannelId || null
+        onlineCountChannelId: onlineCountChannelId || null,
+        globalChatChannelId: globalChatChannelId || null,
+        voiceCreatorChannelId: voiceCreatorChannelId || null
       };
       const res = await api.saveSettings(guildId, payload);
       onSettingsUpdate(res.settings);
@@ -349,6 +355,30 @@ export default function CommandSettings({ guildId, channels = [], settings = nul
               <ChannelSelect
                 value={onlineCountChannelId}
                 onChange={setOnlineCountChannelId}
+                channels={channels.filter(c => c.type === 2)}
+                placeholder="-- 選擇語音頻道 --"
+              />
+            </div>
+
+            <div className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                跨群聊天連線大廳 (Global Chat)
+              </span>
+              <ChannelSelect
+                value={globalChatChannelId}
+                onChange={setGlobalChatChannelId}
+                channels={channels.filter(c => c.type === 0 || c.type === 5)}
+                placeholder="-- 選擇文字/公告頻道 --"
+              />
+            </div>
+
+            <div className="field">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                動態語音母頻道 (Join-to-Create)
+              </span>
+              <ChannelSelect
+                value={voiceCreatorChannelId}
+                onChange={setVoiceCreatorChannelId}
                 channels={channels.filter(c => c.type === 2)}
                 placeholder="-- 選擇語音頻道 --"
               />

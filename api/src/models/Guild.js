@@ -35,6 +35,7 @@ const guildSchema = new mongoose.Schema(
     onlineCountChannelId: { type: String },
     autoPublish: { type: Boolean, default: false },
     globalChatChannelId: { type: String },
+    globalBlockedUsers: { type: [String], default: [] },
   },
   { timestamps: true, strict: false },
 );

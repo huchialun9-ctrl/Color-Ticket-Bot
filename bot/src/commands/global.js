@@ -17,6 +17,18 @@ export default {
         .setName('profile')
         .setDescription('查看某人的全網通行證 (跨群資料)')
         .addUserOption(o => o.setName('user').setDescription('選擇要查看的使用者').setRequired(false))
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('block')
+        .setDescription('【管理員】在跨群網路中屏蔽特定外來玩家的訊息')
+        .addUserOption(o => o.setName('user').setDescription('選擇要屏蔽的使用者').setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('unblock')
+        .setDescription('【管理員】解除對外來跨群玩家的屏蔽')
+        .addUserOption(o => o.setName('user').setDescription('選擇要解除屏蔽的使用者').setRequired(true))
     ),
 
   async execute(interaction) {
@@ -63,6 +75,32 @@ export default {
         return interaction.reply({ embeds: [embed] });
       } catch (err) {
         return interaction.reply({ content: '❌ 無法獲取玩家資料。', ephemeral: true });
+      }
+    }
+
+    if (sub === 'block' || sub === 'unblock') {
+      const { Guild } = await import('../../../api/src/models/Guild.js');
+      const targetUser = interaction.options.getUser('user');
+
+      if (!interaction.member.permissions.has('ManageGuild')) {
+        return interaction.reply({ content: '❌ 您必須具備「管理伺服器」權限才能封鎖跨群用戶！', ephemeral: true });
+      }
+
+      try {
+        const guildData = await Guild.findOne({ guildId: interaction.guildId });
+        let blocked = guildData.globalBlockedUsers || [];
+        
+        if (sub === 'block') {
+          if (!blocked.includes(targetUser.id)) blocked.push(targetUser.id);
+          await Guild.updateOne({ guildId: interaction.guildId }, { $set: { globalBlockedUsers: blocked } });
+          return interaction.reply({ content: `✅ 成功封鎖 **${targetUser.tag}**！\n他的任何跨群訊息將不再轉發至本伺服器。`, ephemeral: true });
+        } else {
+          blocked = blocked.filter(id => id !== targetUser.id);
+          await Guild.updateOne({ guildId: interaction.guildId }, { $set: { globalBlockedUsers: blocked } });
+          return interaction.reply({ content: `✅ 已解除對 **${targetUser.tag}** 的封鎖！`, ephemeral: true });
+        }
+      } catch (e) {
+        return interaction.reply({ content: '❌ 封鎖操作失敗，資料庫異常。', ephemeral: true });
       }
     }
   }

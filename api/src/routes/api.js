@@ -270,6 +270,12 @@ apiRouter.put('/guilds/:guildId/settings', requireDB, async (req, res) => {
     if (patch.onlineCountChannelId !== undefined) {
       update.onlineCountChannelId = patch.onlineCountChannelId || null;
     }
+    if (patch.globalChatChannelId !== undefined) {
+      update.globalChatChannelId = patch.globalChatChannelId || null;
+    }
+    if (patch.voiceCreatorChannelId !== undefined) {
+      update.voiceCreatorChannelId = patch.voiceCreatorChannelId || null;
+    }
 
     const updatedGuild = await Guild.findOneAndUpdate(
       { guildId },

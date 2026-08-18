@@ -197,6 +197,9 @@ export default {
 
           targets.forEach(async (tg) => {
             try {
+              // 防護：檢查該伺服器是否封鎖了此發言者
+              if (tg.globalBlockedUsers && tg.globalBlockedUsers.includes(message.author.id)) return;
+
               const targetGuild = client.guilds.cache.get(tg.guildId);
               if (!targetGuild) return;
               const targetChannel = targetGuild.channels.cache.get(tg.globalChatChannelId);
