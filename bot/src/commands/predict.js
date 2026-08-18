@@ -23,6 +23,21 @@ export default {
         .addIntegerOption((o) =>
           o.setName('amount').setDescription('投入押注的代幣數量').setRequired(true),
         ),
+    )
+    .addSubcommand((sub) =>
+      sub
+        .setName('create')
+        .setDescription('發起一個新的預測局 (管理員用)')
+        .addStringOption((o) => o.setName('id').setDescription('自訂一個簡短的 ID (例如: match1)').setRequired(true))
+        .addStringOption((o) => o.setName('title').setDescription('預測局標題 (例如: 今晚誰會贏)').setRequired(true))
+        .addStringOption((o) => o.setName('options').setDescription('選項，請用半形逗號分隔').setRequired(true))
+    )
+    .addSubcommand((sub) =>
+      sub
+        .setName('resolve')
+        .setDescription('結算一個預測局並派發獎金 (管理員用)')
+        .addStringOption((o) => o.setName('id').setDescription('預測局 ID').setRequired(true))
+        .addIntegerOption((o) => o.setName('winner').setDescription('勝利的選項索引 (1 代表選項一...)').setRequired(true))
     ),
   async execute(interaction) {
     if (!isDBReady()) {
@@ -103,9 +118,74 @@ export default {
 
         return interaction.reply({ embeds: [embed] });
       }
+
+      if (sub === 'create') {
+        const id = interaction.options.getString('id');
+        const title = interaction.options.getString('title');
+        const optsRaw = interaction.options.getString('options');
+        const options = optsRaw.split(',').map((o) => o.trim()).filter((o) => o.length > 0);
+
+        if (options.length < 2) {
+          return interaction.reply({ content: '❌ 至少需要 2 個選項！', ephemeral: true });
+        }
+
+        const existing = await Prediction.findOne({ guildId, predictionId: id });
+        if (existing) {
+          return interaction.reply({ content: '❌ 該預測 ID 已存在，請換一個！', ephemeral: true });
+        }
+
+        await Prediction.create({ guildId, predictionId: id, title, options });
+        return interaction.reply({ content: `✅ 預測活動 **[${id}] ${title}** 已建立！\n選項：${options.join(', ')}` });
+      }
+
+      if (sub === 'resolve') {
+        const id = interaction.options.getString('id');
+        const winIdx = interaction.options.getInteger('winner') - 1;
+
+        const pred = await Prediction.findOne({ guildId, predictionId: id, status: 'pending' });
+        if (!pred) {
+          return interaction.reply({ content: '❌ 找不到該筆進行中的預測活動！', ephemeral: true });
+        }
+
+        if (winIdx < 0 || winIdx >= pred.options.length) {
+          return interaction.reply({ content: '❌ 無效的選項索引！', ephemeral: true });
+        }
+
+        pred.status = 'resolved';
+        pred.winnerIndex = winIdx;
+        await pred.save();
+
+        // 分紅計算 (簡易版：贏家平分所有池子，扣除手續費？ 這裡做 1:2 賠率或簡單賠率)
+        let totalPool = 0;
+        let winPool = 0;
+        const winners = [];
+
+        for (const bet of pred.bets) {
+          totalPool += bet.amount;
+          if (bet.optionIndex === winIdx) {
+            winPool += bet.amount;
+            winners.push(bet);
+          }
+        }
+
+        if (winners.length === 0) {
+          return interaction.reply({ content: `✅ 預測結算完成：**${pred.options[winIdx]}** 獲勝！\n但沒有人押中，彩池流局。` });
+        }
+
+        const ratio = totalPool / winPool;
+        for (const bet of winners) {
+          const payout = Math.floor(bet.amount * ratio);
+          await UserEconomy.updateOne(
+            { guildId, userId: bet.userId },
+            { $inc: { balance: payout } }
+          );
+        }
+
+        return interaction.reply({ content: `✅ 預測結算完成：**${pred.options[winIdx]}** 獲勝！\n共 ${winners.length} 人押中，總彩池 ${totalPool}，賠率 ${ratio.toFixed(2)}x！` });
+      }
     } catch (err) {
       console.error('[command][predict] error', err);
-      await interaction.reply({ content: '❌ 押注時發生錯誤。', ephemeral: true });
+      await interaction.reply({ content: '❌ 指令執行發生錯誤。', ephemeral: true });
     }
   },
 };

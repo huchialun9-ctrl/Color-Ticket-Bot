@@ -12,8 +12,17 @@ export default {
         .setName('action')
         .setDescription('選擇動作：draw (抽盲盒) 或 list (查看獎品清單)')
         .setRequired(true)
-        .addChoices({ name: '抽盲盒 🎁', value: 'draw' }, { name: '獎品清單 📜', value: 'list' }),
-    ),
+        .addChoices(
+          { name: '抽盲盒 🎁', value: 'draw' }, 
+          { name: '獎品清單 📜', value: 'list' },
+          { name: '新增獎品 (管理員)', value: 'add' },
+          { name: '移除獎品 (管理員)', value: 'remove' }
+        ),
+    )
+    .addStringOption((o) => o.setName('name').setDescription('獎品名稱 (新增/移除時使用)'))
+    .addStringOption((o) => o.setName('rarity').setDescription('稀有度 (新增時使用) 例如: SSR, SR, R, N'))
+    .addIntegerOption((o) => o.setName('weight').setDescription('中獎權重 (新增時使用) 數字越大越容易中'))
+    .addRoleOption((o) => o.setName('role').setDescription('綁定獲得的身份組 (新增時選填)')),
   async execute(interaction) {
     if (!isDBReady()) {
       return interaction.reply({ content: '❌ 資料庫未就緒，請稍後再試！', ephemeral: true });
@@ -23,6 +32,36 @@ export default {
     const action = interaction.options.getString('action');
 
     try {
+      if (action === 'add') {
+        const name = interaction.options.getString('name');
+        const rarity = interaction.options.getString('rarity') || 'N';
+        const weight = interaction.options.getInteger('weight') || 100;
+        const role = interaction.options.getRole('role');
+
+        if (!name) return interaction.reply({ content: '❌ 新增獎品必須提供 name 參數！', ephemeral: true });
+
+        await BlindBox.create({
+          guildId,
+          name,
+          rarity,
+          weight,
+          roleRewardId: role?.id || null,
+        });
+
+        return interaction.reply({ content: `✅ 成功新增盲盒獎品：**${name}** [${rarity}] (權重: ${weight})` });
+      }
+
+      if (action === 'remove') {
+        const name = interaction.options.getString('name');
+        if (!name) return interaction.reply({ content: '❌ 移除獎品必須提供 name 參數！', ephemeral: true });
+
+        const res = await BlindBox.deleteOne({ guildId, name });
+        if (res.deletedCount === 0) {
+          return interaction.reply({ content: `❌ 找不到名為 **${name}** 的獎品。`, ephemeral: true });
+        }
+        return interaction.reply({ content: `✅ 成功移除獎品：**${name}**` });
+      }
+
       if (action === 'list') {
         const prizes = await BlindBox.find({ guildId });
         if (prizes.length === 0) {
