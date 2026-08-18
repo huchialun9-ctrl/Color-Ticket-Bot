@@ -7,6 +7,8 @@ import { checkPII } from '../modules/automod/piiSanitizer.js';
 
 // 經驗值獲取冷卻（限制一分鐘一次防止洗版刷經驗）
 const xpCooldowns = new Set();
+// 連續相同訊息追蹤快取：Map<userId, { content, count, timestamp }>
+const duplicateCache = new Map();
 
 export default {
   name: Events.MessageCreate,
@@ -40,8 +42,52 @@ export default {
       return;
     }
 
+    // ---- 0.2 表情符號洗版限制 (Emoji Limit) ----
+    const emojiRegex = /<a?:[a-zA-Z0-9_]+:\d+>|[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const emojiCount = (message.content.match(emojiRegex) || []).length;
+    if (emojiCount > 15) {
+      await message.delete().catch(() => {});
+      await message.channel.send(`⚠️ ${message.author} 請勿在一則訊息中使用過多表情符號！`).catch(() => {});
+      await auditLog(message.guild, 'security_alert', { member: message.author.tag, action: 'emoji_spam', detail: `使用了 ${emojiCount} 個表情符號` });
+      return;
+    }
+
+    // ---- 0.3 超長訊息摺疊 (Long Message) ----
+    if (message.content.length > 1500) {
+      const longContent = message.content;
+      await message.delete().catch(() => {});
+      
+      const buffer = Buffer.from(longContent, 'utf-8');
+      await message.channel.send({
+        content: `⚠️ ${message.author} 您的訊息過長，為避免洗版，已自動摺疊為檔案形式：`,
+        files: [{ attachment: buffer, name: 'long_message.txt' }]
+      }).catch(() => {});
+      
+      await auditLog(message.guild, 'security_alert', { member: message.author.tag, action: 'long_message', detail: '發送超過 1500 字的長訊息，已自動轉為 txt 附件' });
+      return;
+    }
+
     const settings = await getSettings(message.guild.id);
     const cooldownKey = `${message.guild.id}-${message.author.id}`;
+
+    // ---- 0.4 連續相同訊息洗版攔截 (Duplicate Spam Filter) ----
+    if (message.content.length > 5) { // 忽略太短的字串(例如"安安")
+      const lastMsg = duplicateCache.get(cooldownKey);
+      const now = Date.now();
+      if (lastMsg && lastMsg.content === message.content && now - lastMsg.timestamp < 30000) {
+        lastMsg.count += 1;
+        lastMsg.timestamp = now;
+        
+        if (lastMsg.count >= 3) {
+          await message.delete().catch(() => {});
+          await message.channel.send(`⚠️ ${message.author} 請勿連續發送相同內容洗版！`).catch(() => {});
+          await auditLog(message.guild, 'security_alert', { member: message.author.tag, action: 'duplicate_spam', detail: '連續發送相同訊息超過 3 次' });
+          return;
+        }
+      } else {
+        duplicateCache.set(cooldownKey, { content: message.content, count: 1, timestamp: now });
+      }
+    }
 
     // ---- 1. Token Bucket 防洗版 ----
     if (settings.automod?.enabled !== false) {
