@@ -3,6 +3,7 @@ import { getSettings } from '../modules/settings.js';
 import { tokenBucket } from '../modules/automod/tokenBucket.js';
 import { auditLog } from '../modules/automod/auditLog.js';
 import { MemberXP } from '../../../api/src/models/MemberXP.js';
+import { Guild } from '../../../api/src/models/Guild.js';
 import { checkPII } from '../modules/automod/piiSanitizer.js';
 
 // 經驗值獲取冷卻（限制一分鐘一次防止洗版刷經驗）
@@ -161,6 +162,49 @@ export default {
           await message.channel.send({ embeds: [embed] }).catch(() => {});
           break; // 僅觸發第一個匹配項
         }
+      }
+    }
+
+    // ---- 4. 跨群聊天 (Global Chat) ----
+    if (settings.globalChatChannelId && message.channel.id === settings.globalChatChannelId) {
+      try {
+        const allGuilds = await Guild.find({ 
+          globalChatChannelId: { $exists: true, $ne: null } 
+        });
+
+        const targets = allGuilds.filter(g => g.guildId !== message.guild.id);
+        
+        if (targets.length > 0) {
+          const embed = new EmbedBuilder()
+            .setColor(0x00BFFF)
+            .setAuthor({ 
+              name: `${message.author.tag}`, 
+              iconURL: message.author.displayAvatarURL({ dynamic: true }) 
+            })
+            .setDescription(message.content || '*[附件]*')
+            .setFooter({ text: `🌐 跨群廣播 • 來自 ${message.guild.name}` })
+            .setTimestamp();
+
+          const attachment = message.attachments.first();
+          if (attachment && attachment.contentType?.startsWith('image/')) {
+            embed.setImage(attachment.url);
+          }
+
+          targets.forEach(async (tg) => {
+            try {
+              const targetGuild = client.guilds.cache.get(tg.guildId);
+              if (!targetGuild) return;
+              const targetChannel = targetGuild.channels.cache.get(tg.globalChatChannelId);
+              if (!targetChannel || !targetChannel.isTextBased()) return;
+
+              await targetChannel.send({ embeds: [embed] }).catch(() => {});
+            } catch (e) {
+               // ignore
+            }
+          });
+        }
+      } catch (err) {
+        console.error('[messageCreate][globalchat] error', err.message);
       }
     }
   },

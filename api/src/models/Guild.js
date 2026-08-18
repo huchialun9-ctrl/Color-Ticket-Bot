@@ -30,8 +30,13 @@ const guildSchema = new mongoose.Schema(
     logChannelId: { type: String },
     securityWebhookUrl: { type: String },
     voiceCreatorChannelId: { type: String },
+    reportChannelId: { type: String },
+    memberCountChannelId: { type: String },
+    onlineCountChannelId: { type: String },
+    autoPublish: { type: Boolean, default: false },
+    globalChatChannelId: { type: String },
   },
-  { timestamps: true },
+  { timestamps: true, strict: false },
 );
 
 guildSchema.index({ guildId: 1, 'automod.enabled': 1 });
