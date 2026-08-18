@@ -14,6 +14,7 @@
     "dev:api": "npm run dev --workspace api",
     "dev:web": "npm run dev --workspace web",
     "dev": "concurrently -n bot,api,web -c blue,green,magenta \"npm run dev:bot\" \"npm run dev:api\" \"npm run dev:web\"",
+    "prestart": "npm run deploy --workspace bot",
     "start": "concurrently -n bot,api,web -c blue,green,magenta \"npm run start --workspace bot\" \"npm run start --workspace api\" \"npm run start --workspace web\"",
     "deploy": "npm run deploy --workspace bot",
     "build:web": "npm run build --workspace web",
